@@ -1,0 +1,6 @@
+{
+  "name": "BIET Academic OS",
+  "description": "Bhimavaram Institute of Engineering & Technology (BIET) Academic OS - Enterprise Academic System with SIS, LMS, JNTUK Exam Cell, Attendance & BIET Cortex AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

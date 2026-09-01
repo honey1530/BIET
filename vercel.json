@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build:student",
-  "outputDirectory": "apps/student-app/dist",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
     {

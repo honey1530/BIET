@@ -1,8 +1,16 @@
 {
   "version": 2,
-  "buildCommand": "vite build",
+  "buildCommand": "npx vite build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

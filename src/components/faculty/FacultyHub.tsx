@@ -148,16 +148,19 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 font-serif">
-            BIET Faculty Workstation &amp; Academic Management
+            {activeTab === 'attendance' && 'Classroom Period 1-7 Student Roll-Call & SMS Alerts'}
+            {activeTab === 'timetable' && 'Master Class Schedule & Timetable (Periods 1-7)'}
+            {activeTab === 'syllabus' && 'Syllabus & Unit Coverage Tracker (Units 1-5)'}
+            {activeTab === 'paper' && 'Bloom\'s Taxonomy AI Mid Question Paper Studio'}
           </h2>
           <p className="text-xs text-slate-500 font-medium">
-            Classroom Period 1-7 Roll-Call, Master Schedule, Syllabus Tracker &amp; Bloom's AI Mid Paper Studio
+            Active Subject: <strong className="text-indigo-700">{currentCourse.name} ({currentCourse.code})</strong> • Regulation {currentCourse.regulation} • Department of {currentCourse.department}
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <label className="text-xs font-bold text-slate-600">Active Course:</label>
+            <label className="text-xs font-bold text-slate-600">Select Subject:</label>
             <select
               value={selectedCourseCode}
               onChange={(e) => setSelectedCourseCode(e.target.value)}
@@ -171,33 +174,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Sub-Tab Switcher: 4 Separate Tabs */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs">
-        {[
-          { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Alerts', icon: Fingerprint },
-          { id: 'timetable', label: 'Master Class Timetable', icon: Calendar },
-          { id: 'syllabus', label: 'Syllabus & Unit Coverage Tracker', icon: BookOpen },
-          { id: 'paper', label: 'Bloom\'s Taxonomy AI Mid Paper Studio', icon: FileText },
-        ].map(t => {
-          const Icon = t.icon;
-          const isActive = activeTab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                isActive
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
       </div>
 
       {/* TAB 1: PERIOD 1-7 SEQUENTIAL ROLL-CALL & PARENT SMS ALERTS */}

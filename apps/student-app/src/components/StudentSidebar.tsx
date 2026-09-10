@@ -33,6 +33,7 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
 }) => {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     info: true,
+    calculator: true,
     attendance: true,
     ai: true,
   });
@@ -49,8 +50,15 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
       items: [
         { id: 'student_details', label: 'Student Bio-Data', icon: User },
         { id: 'student_admission', label: 'Academic Marks & Grades', icon: FileText },
-        { id: 'sgpa_calculator', label: 'SGPA, CGPA & Percentage Calculator', icon: Calculator },
         { id: 'fee_status', label: 'Fee & JVD Scholarship', icon: CreditCard },
+      ]
+    },
+    {
+      key: 'calculator',
+      title: 'SGPA & CGPA Calculator',
+      icon: Calculator,
+      items: [
+        { id: 'sgpa_calculator', label: 'SGPA, CGPA & Percentage Calculator', icon: Calculator },
       ]
     },
     {

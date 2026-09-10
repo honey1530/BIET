@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { DepartmentCode, AuthSession } from '../../../src/types';
-import { Header } from '../../../src/components/Header';
 import { LoginPage } from '../../../src/components/auth/LoginPage';
 import { BranchBar } from '../../../src/components/common/BranchBar';
+import { PrincipalTopBar } from './components/PrincipalTopBar';
+import { PrincipalSidebar, PrincipalMenuId } from './components/PrincipalSidebar';
 import { ExecutiveDashboard } from '../../../src/components/dashboards/ExecutiveDashboard';
 import { AdminManagementHub } from '../../../src/components/admin/AdminManagementHub';
 import { FinanceModule } from '../../../src/components/finance/FinanceModule';
 import { CortexAIHub } from '../../../src/components/ai/CortexAIHub';
-import { LayoutDashboard, Users, IndianRupee, Bot, LogOut } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 export default function PrincipalStandaloneApp() {
   const [authSession, setAuthSession] = useState<AuthSession | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [selectedDept, setSelectedDept] = useState<DepartmentCode | 'ALL'>('ALL');
-  const [activeTab, setActiveTab] = useState<'admin_hub' | 'cockpit' | 'finance' | 'ai'>('admin_hub');
+  const [activeMenu, setActiveMenu] = useState<PrincipalMenuId>('admin_hub');
+  const [globalSearch, setGlobalSearch] = useState<string>('');
 
   if (!authSession) {
     return (
@@ -24,86 +27,81 @@ export default function PrincipalStandaloneApp() {
     );
   }
 
-  const principalTabs = [
-    { id: 'admin_hub', label: 'Staff & Student Admin Hub', icon: Users },
-    { id: 'cockpit', label: 'Executive Institutional Cockpit', icon: LayoutDashboard },
-    { id: 'finance', label: 'Revenue & JVD Fee Ledger', icon: IndianRupee },
-    { id: 'ai', label: 'Text-to-SQL Analytics AI', icon: Bot },
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col selection:bg-indigo-600 selection:text-white">
-      <Header
-        currentRole="principal"
-        onRoleChange={() => {}}
-        selectedDept={selectedDept}
-        onDeptChange={setSelectedDept}
-        onOpenAiHub={() => setActiveTab('ai')}
+      {/* Top Header Bar */}
+      <PrincipalTopBar
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        principalName={authSession.name}
+        department={authSession.department}
+        searchQuery={globalSearch}
+        onSearchChange={setGlobalSearch}
       />
 
-      <div className="bg-white border-b border-slate-200 px-4 py-2.5 text-xs flex items-center justify-between shadow-xs">
-        <div className="flex items-center space-x-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-slate-600">Logged in as: <strong className="text-slate-900 font-bold">{authSession.name}</strong> (HOD / Principal / Super Admin)</span>
-        </div>
+      {/* Main Body Layout: Left Expandable Sidebar + Right Workspace Pane */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Collapsible Side Navigation Menu */}
+        <PrincipalSidebar
+          activeMenu={activeMenu}
+          onSelectMenu={(menuId) => setActiveMenu(menuId)}
+          principalName={authSession.name}
+          department={authSession.department}
+          isOpen={sidebarOpen}
+          onLogout={() => setAuthSession(null)}
+        />
 
-        <button
-          onClick={() => setAuthSession(null)}
-          className="bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold px-3 py-1 rounded-xl transition-colors border border-rose-200 flex items-center space-x-1 shadow-xs"
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
-        </button>
+        {/* Right Main Workspace Pane */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 space-y-6">
+          {/* Breadcrumb Title Bar */}
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-xs">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 font-serif">
+                {activeMenu === 'admin_hub' && 'Super Admin User Management & Password Provisioning Hub'}
+                {activeMenu === 'cockpit' && 'Executive Institutional Dashboard & Accreditation Cockpit'}
+                {activeMenu === 'finance' && 'Institutional Revenue, Tuition Fee & JVD Ledger'}
+                {activeMenu === 'ai' && 'BIET Cortex Text-to-SQL Natural Language AI Console'}
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Current Session: 2026-27 • UGC Autonomous Institution • NAAC Grade 'A'
+              </p>
+            </div>
+
+            <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold px-3.5 py-1 rounded-full hidden sm:inline-block shadow-xs">
+              Principal &amp; Executive Cockpit
+            </span>
+          </div>
+
+          {/* Interactive Branch Filter Bar */}
+          <BranchBar selectedDept={selectedDept} onDeptChange={setSelectedDept} />
+
+          {/* Dynamic Component Rendering */}
+          {activeMenu === 'admin_hub' && (
+            <AdminManagementHub
+              currentDept={selectedDept}
+              onDeptChange={setSelectedDept}
+            />
+          )}
+
+          {activeMenu === 'cockpit' && (
+            <ExecutiveDashboard
+              selectedDept={selectedDept}
+              onDeptChange={setSelectedDept}
+              onNavigateTab={() => {}}
+            />
+          )}
+
+          {activeMenu === 'finance' && (
+            <FinanceModule />
+          )}
+
+          {activeMenu === 'ai' && (
+            <CortexAIHub />
+          )}
+        </main>
       </div>
 
-      <nav className="bg-white border-b border-slate-200 text-slate-700 px-4 shadow-xs">
-        <div className="max-w-7xl mx-auto flex items-center space-x-2 py-2 overflow-x-auto">
-          <span className="bg-indigo-600 text-white font-black text-xs px-2.5 py-1.5 rounded-xl mr-2 uppercase tracking-wider flex-shrink-0 shadow-xs">
-            Admin &amp; HOD App
-          </span>
-          {principalTabs.map((t) => {
-            const Icon = t.icon;
-            const isActive = activeTab === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs'
-                    : 'hover:bg-slate-100 text-slate-600'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
-                <span>{t.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <BranchBar selectedDept={selectedDept} onDeptChange={setSelectedDept} />
-
-        {activeTab === 'admin_hub' && (
-          <AdminManagementHub
-            currentDept={selectedDept}
-            onDeptChange={setSelectedDept}
-          />
-        )}
-        {activeTab === 'cockpit' && (
-          <ExecutiveDashboard
-            selectedDept={selectedDept}
-            onDeptChange={setSelectedDept}
-            onNavigateTab={() => {}}
-          />
-        )}
-        {activeTab === 'finance' && <FinanceModule />}
-        {activeTab === 'ai' && <CortexAIHub />}
-      </main>
-
-      <footer className="bg-white text-slate-500 text-xs py-4 mt-12 border-t border-slate-200 text-center shadow-xs">
-        <p className="text-slate-700 font-bold">BIET Admin &amp; HOD Management Portal v5.0 • UGC Autonomous Governance Engine</p>
+      <footer className="bg-white text-slate-600 text-xs py-3 border-t border-slate-200 text-center shadow-xs">
+        <p className="text-slate-900 font-bold">BIET Admin &amp; Principal Control Center v5.0 • Bhimavaram Institute of Engineering &amp; Technology (UGC Autonomous)</p>
       </footer>
     </div>
   );

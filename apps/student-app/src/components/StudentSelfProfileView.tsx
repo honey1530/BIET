@@ -3,7 +3,7 @@ import { getStudentProfileByHtno } from '../../../../src/data/db';
 import { StudentProfile } from '../../../../src/types';
 import { 
   User, GraduationCap, Award, Percent, CreditCard, CheckCircle2, ShieldCheck, 
-  Calculator, Printer, Sparkles, FileText, Calendar, Building2, BookOpen, Layers 
+  Calculator, Printer, Sparkles, FileText, Calendar, Building2, Plus, X, Trash2, ArrowRight 
 } from 'lucide-react';
 
 interface StudentSelfProfileViewProps {
@@ -20,9 +20,13 @@ interface BR24SubjectRecord {
   internals: number;
   grade: 'S' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'AB';
   credits: number;
-  isBacklog?: boolean;
-  isCleared?: boolean;
-  clearedGrade?: 'S' | 'A' | 'B' | 'C' | 'D' | 'E';
+}
+
+interface CustomCourseRow {
+  id: string;
+  name: string;
+  gradePoint: number;
+  credits: number;
 }
 
 export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
@@ -143,41 +147,51 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
   const currentSheet = semesterSheetsData[selectedSemSheet] || semesterSheetsData['2-2'];
 
-  // Standalone Calculator Subject State
-  const [calculatorSubjects, setCalculatorSubjects] = useState<BR24SubjectRecord[]>([
-    ...semesterSheetsData['2-2'].subjects
+  // Dynamic CGPA Calculator Courses State (Exact layout matching the uploaded image!)
+  const [coursesList, setCoursesList] = useState<CustomCourseRow[]>([
+    { id: '1', name: 'Digital Electronics', gradePoint: 8, credits: 3 },
+    { id: '2', name: 'MPMC', gradePoint: 9, credits: 3 },
+    { id: '3', name: 'DV Lab', gradePoint: 10, credits: 3 },
+    { id: '4', name: 'Full Stack Development', gradePoint: 9, credits: 2 },
   ]);
 
-  const [calcFormula, setCalcFormula] = useState<'biet_br24' | 'standard'>('biet_br24');
+  const [previousCgpa, setPreviousCgpa] = useState<string>('7.69');
+  const [previousCredits, setPreviousCredits] = useState<string>('60');
 
-  // Dynamic SGPA / CGPA Calculation Formula: SGPA = Sum(Ci * GPi) / Sum(Ci)
-  let totalCredits = 0;
-  let totalWeightedGradePoints = 0;
-  let activeBacklogsCount = 0;
-  let clearedBacklogsCount = 0;
+  // Add Dynamic New Course Row
+  const handleAddCourse = () => {
+    const newRow: CustomCourseRow = {
+      id: Date.now().toString(),
+      name: `Course ${coursesList.length + 1}`,
+      gradePoint: 8,
+      credits: 3
+    };
+    setCoursesList([...coursesList, newRow]);
+  };
 
-  calculatorSubjects.forEach(s => {
-    totalCredits += s.credits;
-    const effectiveGrade = (s.isBacklog && s.isCleared && s.clearedGrade) ? s.clearedGrade : s.grade;
-    const points = BR24_GRADE_SCALE[effectiveGrade]?.points ?? 0;
+  // Remove Course Row
+  const handleRemoveCourse = (id: string) => {
+    if (coursesList.length <= 1) return;
+    setCoursesList(coursesList.filter(c => c.id !== id));
+  };
 
-    if (effectiveGrade === 'F' || effectiveGrade === 'AB') {
-      activeBacklogsCount++;
-    } else {
-      totalWeightedGradePoints += (points * s.credits);
-      if (s.isBacklog && s.isCleared) {
-        clearedBacklogsCount++;
-      }
-    }
-  });
+  // Update Course Name / Grade / Credits
+  const handleCourseChange = (id: string, field: keyof CustomCourseRow, value: any) => {
+    setCoursesList(coursesList.map(c => c.id === id ? { ...c, [field]: value } : c));
+  };
 
-  const calculatedSgpa = totalCredits > 0 ? (totalWeightedGradePoints / totalCredits) : 8.10;
-  const calculatedCgpa = student.cgpa || 7.69;
+  // Compute SGPA & Combined CGPA
+  const currentSemCredits = coursesList.reduce((sum, c) => sum + (Number(c.credits) || 0), 0);
+  const currentSemWeightedPts = coursesList.reduce((sum, c) => sum + ((Number(c.gradePoint) || 0) * (Number(c.credits) || 0)), 0);
+  const currentSemSgpa = currentSemCredits > 0 ? (currentSemWeightedPts / currentSemCredits) : 0;
 
-  // Percentage Formula: (SGPA - 0.75) * 10
-  const calculatedPercentage = calcFormula === 'biet_br24'
-    ? Math.max(0, (calculatedSgpa - 0.75) * 10)
-    : (calculatedSgpa * 9.5);
+  const prevCgpaNum = parseFloat(previousCgpa) || 0;
+  const prevCredsNum = parseFloat(previousCredits) || 0;
+
+  const totalCombinedCredits = prevCredsNum + currentSemCredits;
+  const totalCombinedPoints = (prevCgpaNum * prevCredsNum) + currentSemWeightedPts;
+  const combinedCgpa = totalCombinedCredits > 0 ? (totalCombinedPoints / totalCombinedCredits) : currentSemSgpa;
+  const equivalentPct = Math.max(0, (combinedCgpa - 0.75) * 10);
 
   const handlePrintGradeSheet = () => {
     window.print();
@@ -535,153 +549,155 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
       )}
 
       {/* ========================================================================================= */}
-      {/* 3. SGPA, CGPA & PERCENTAGE CALCULATOR TAB (STRICTLY ONLY THE CALCULATOR & ALL-SEM TRACKER) */}
+      {/* 3. SGPA & CGPA CALCULATOR TAB (MATCHING YOUR UPLOADED IMAGE LAYOUT 100% PRECISELY) */}
       {/* ========================================================================================= */}
       {activeTab === 'calculator' && (
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-indigo-600" />
-                  <span>BIET Autonomous SGPA, CGPA &amp; Percentage Calculator</span>
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Calculate every semester SGPA, overall cumulative CGPA, and equivalent percentage with cleared backlog tracker
-                </p>
-              </div>
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
+            
+            {/* Header: Title + Blue "+ Add Course" Button (Matches Uploaded Image) */}
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <h3 className="text-xl font-bold text-blue-600 font-sans tracking-tight">
+                Your Courses
+              </h3>
 
-              <div className="flex items-center space-x-2">
-                <label className="text-xs font-bold text-slate-600">Formula:</label>
-                <select
-                  value={calcFormula}
-                  onChange={(e) => setCalcFormula(e.target.value as any)}
-                  className="bg-slate-50 border border-slate-200 text-indigo-700 font-bold text-xs rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
+              <button
+                onClick={handleAddCourse}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Course</span>
+              </button>
+            </div>
+
+            {/* Sub-Header Labels (Matches Uploaded Image) */}
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 text-xs text-slate-500 font-medium px-2">
+              <div className="col-span-5">Course Name</div>
+              <div className="col-span-3">Grade</div>
+              <div className="col-span-3">Credits</div>
+              <div className="col-span-1 text-center">Action</div>
+            </div>
+
+            {/* Dynamic Course Rows List (Matches Uploaded Image Layout) */}
+            <div className="space-y-3">
+              {coursesList.map((course) => (
+                <div 
+                  key={course.id} 
+                  className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center shadow-2xs hover:border-blue-300 transition-colors"
                 >
-                  <option value="biet_br24">BIET Autonomous [(CGPA - 0.75) × 10]</option>
-                  <option value="standard">Standard [(CGPA × 9.5)]</option>
-                </select>
-              </div>
-            </div>
-
-            {/* All-Semesters Cumulative Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center space-y-1">
-                <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Exam SGPA</span>
-                <div className="text-3xl font-black text-slate-900">{calculatedSgpa.toFixed(2)} <span className="text-xs font-normal text-slate-500">/ 10</span></div>
-                <span className="text-[11px] font-bold text-indigo-700">Total Credits: {totalCredits}</span>
-              </div>
-
-              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center space-y-1">
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Equivalent Percentage</span>
-                <div className="text-3xl font-black text-emerald-700">{calculatedPercentage.toFixed(2)}%</div>
-                <span className="text-[11px] font-bold text-emerald-800">
-                  {calcFormula === 'biet_br24' ? 'Formula: (SGPA - 0.75) × 10' : 'Formula: SGPA × 9.5'}
-                </span>
-              </div>
-
-              <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl text-center space-y-1">
-                <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Cumulative CGPA</span>
-                <div className="text-3xl font-black text-purple-900">{calculatedCgpa.toFixed(2)}</div>
-                <span className="text-[11px] font-bold text-purple-700">Batch 2024-2028</span>
-              </div>
-
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center space-y-1">
-                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Exam Result Status</span>
-                <div className="text-xl font-black text-emerald-700">PASS</div>
-                <span className="text-[11px] font-semibold text-amber-900">UGC Autonomous BR24</span>
-              </div>
-            </div>
-
-            {/* All Semester SGPAs Breakdown Grid */}
-            <div className="space-y-3 pt-2">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">All Semesters SGPA &amp; CGPA Tracker</h4>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {Object.entries(semesterSheetsData).map(([semKey, sheet]) => (
-                  <div key={semKey} className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1">
-                    <span className="text-xs font-bold text-slate-900 block">Semester {semKey}</span>
-                    <div className="text-lg font-black text-indigo-700">{sheet.sgpa.toFixed(2)} <span className="text-[10px] text-slate-500 font-normal">SGPA</span></div>
-                    <span className="text-[10px] text-emerald-700 font-bold block">CGPA: {sheet.cgpa.toFixed(2)}</span>
+                  {/* Course Name Input */}
+                  <div className="sm:col-span-5 space-y-1">
+                    <label className="sm:hidden text-[11px] font-bold text-slate-500 block">Course Name</label>
+                    <input
+                      type="text"
+                      value={course.name}
+                      onChange={(e) => handleCourseChange(course.id, 'name', e.target.value)}
+                      placeholder="Course Name (e.g. Digital Electronics)"
+                      className="w-full bg-white border border-slate-200 text-slate-800 text-xs font-semibold px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 shadow-2xs"
+                    />
                   </div>
-                ))}
+
+                  {/* Grade Dropdown */}
+                  <div className="sm:col-span-3 space-y-1">
+                    <label className="sm:hidden text-[11px] font-bold text-slate-500 block">Grade</label>
+                    <select
+                      value={course.gradePoint}
+                      onChange={(e) => handleCourseChange(course.id, 'gradePoint', Number(e.target.value))}
+                      className="w-full bg-white border border-slate-200 text-slate-800 text-xs font-bold px-3 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+                    >
+                      <option value={10}>S (10 Points - Outstanding)</option>
+                      <option value={9}>A (9 Points - Excellent)</option>
+                      <option value={8}>B (8 Points - Very Good)</option>
+                      <option value={7}>C (7 Points - Good)</option>
+                      <option value={6}>D (6 Points - Fair)</option>
+                      <option value={5}>E (5 Points - Pass)</option>
+                      <option value={0}>F (0 Points - Fail)</option>
+                      <option value={1}>1 (Grade Point 1)</option>
+                      <option value={2}>2 (Grade Point 2)</option>
+                      <option value={3}>3 (Grade Point 3)</option>
+                      <option value={4}>4 (Grade Point 4)</option>
+                    </select>
+                  </div>
+
+                  {/* Credits Input */}
+                  <div className="sm:col-span-3 space-y-1">
+                    <label className="sm:hidden text-[11px] font-bold text-slate-500 block">Credits</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0.5"
+                      max="10"
+                      value={course.credits}
+                      onChange={(e) => handleCourseChange(course.id, 'credits', parseFloat(e.target.value) || 0)}
+                      placeholder="Credits"
+                      className="w-full bg-white border border-slate-200 text-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 shadow-2xs"
+                    />
+                  </div>
+
+                  {/* Red Circular Remove Button (Matches Uploaded Image 100%) */}
+                  <div className="sm:col-span-1 flex justify-end sm:justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCourse(course.id)}
+                      className="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-black text-sm flex items-center justify-center shadow-xs transition-transform active:scale-95 cursor-pointer"
+                      title="Remove Course"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom Previous CGPA & Credits Input Box (Matches Uploaded Image) */}
+            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-5 md:p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-900 block">Previous CGPA</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="10"
+                  value={previousCgpa}
+                  onChange={(e) => setPreviousCgpa(e.target.value)}
+                  placeholder="Enter prev CGPA (e.g. 7.69)"
+                  className="w-full bg-white border border-slate-200 text-slate-900 text-xs font-bold px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 shadow-2xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-900 block">Previous Total Credits</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="200"
+                  value={previousCredits}
+                  onChange={(e) => setPreviousCredits(e.target.value)}
+                  placeholder="Enter previous total credits (e.g. 60)"
+                  className="w-full bg-white border border-slate-200 text-slate-900 text-xs font-bold px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 shadow-2xs"
+                />
               </div>
             </div>
 
-            {/* Subject-Wise BR24 Grade Interactive Input Table */}
-            <div className="space-y-3 pt-2 border-t border-slate-200">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Interactive Subject Grade Sheet &amp; Backlog Calculator</h4>
+            {/* Output Calculation Results Card */}
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-2xl p-6 text-white grid grid-cols-1 sm:grid-cols-3 gap-6 shadow-md mt-6">
+              <div className="space-y-1 border-b sm:border-b-0 sm:border-r border-slate-800 pb-3 sm:pb-0 sm:pr-4">
+                <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Current Semester SGPA</span>
+                <div className="text-3xl font-black text-white">{currentSemSgpa.toFixed(2)} <span className="text-xs font-normal text-slate-400">/ 10</span></div>
+                <span className="text-[11px] text-slate-300 font-medium">Credits: {currentSemCredits}</span>
+              </div>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
-                    <tr>
-                      <th className="py-3 px-3">S.No</th>
-                      <th className="py-3 px-3">Subject Code &amp; Name</th>
-                      <th className="py-3 px-3">Internals</th>
-                      <th className="py-3 px-3">Grade</th>
-                      <th className="py-3 px-3">Credits</th>
-                      <th className="py-3 px-3 text-right">Grade Points</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200 bg-white">
-                    {calculatorSubjects.map((sub, idx) => {
-                      const points = BR24_GRADE_SCALE[sub.grade]?.points ?? 0;
+              <div className="space-y-1 border-b sm:border-b-0 sm:border-r border-slate-800 pb-3 sm:pb-0 sm:pr-4">
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">Updated Combined CGPA</span>
+                <div className="text-3xl font-black text-emerald-400">{combinedCgpa.toFixed(2)} <span className="text-xs font-normal text-slate-400">/ 10</span></div>
+                <span className="text-[11px] text-slate-300 font-medium">Total Credits: {totalCombinedCredits}</span>
+              </div>
 
-                      return (
-                        <tr key={sub.sno} className="hover:bg-slate-50 transition-colors">
-                          <td className="py-3 px-3 font-bold text-indigo-700 font-mono">{sub.sno}</td>
-                          <td className="py-3 px-3">
-                            <span className="font-mono text-indigo-600 font-bold mr-2">[{sub.code}]</span>
-                            <span className="font-bold text-slate-900">{sub.name}</span>
-                          </td>
-                          <td className="py-3 px-3">
-                            <input
-                              type="number"
-                              min="0"
-                              max="30"
-                              value={sub.internals}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value, 10) || 0;
-                                const updated = [...calculatorSubjects];
-                                updated[idx].internals = val;
-                                setCalculatorSubjects(updated);
-                              }}
-                              className="w-16 bg-slate-50 border border-slate-300 text-slate-900 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600"
-                            />
-                          </td>
-
-                          <td className="py-3 px-3">
-                            <select
-                              value={sub.grade}
-                              onChange={(e) => {
-                                const newGrade = e.target.value as BR24SubjectRecord['grade'];
-                                const updated = [...calculatorSubjects];
-                                updated[idx].grade = newGrade;
-                                setCalculatorSubjects(updated);
-                              }}
-                              className="font-bold text-xs rounded-lg px-2 py-1 border border-slate-300 bg-slate-50 text-indigo-700 cursor-pointer"
-                            >
-                              <option value="S">S (10 Points - &ge;90%)</option>
-                              <option value="A">A (9 Points - 80-89%)</option>
-                              <option value="B">B (8 Points - 70-79%)</option>
-                              <option value="C">C (7 Points - 60-69%)</option>
-                              <option value="D">D (6 Points - 50-59%)</option>
-                              <option value="E">E (5 Points - 40-49%)</option>
-                              <option value="F">F (0 Points - Fail)</option>
-                              <option value="AB">AB (0 Points - Absent)</option>
-                            </select>
-                          </td>
-
-                          <td className="py-3 px-3 font-bold text-slate-700">{sub.credits}</td>
-                          <td className="py-3 px-3 text-right font-black text-slate-900 text-sm">
-                            {points * sub.credits} <span className="text-[10px] text-slate-500 font-normal">pts</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="space-y-1">
+                <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider block">Equivalent Percentage</span>
+                <div className="text-3xl font-black text-purple-300">{equivalentPct.toFixed(2)}%</div>
+                <span className="text-[11px] text-slate-400 font-medium">Formula: (CGPA - 0.75) × 10</span>
               </div>
             </div>
           </div>

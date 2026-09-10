@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { 
   Users, Fingerprint, LayoutDashboard, ChevronDown, ChevronRight, 
-  Sparkles, LogOut, BookOpen, Clock, Building2, UserCheck 
+  Sparkles, LogOut, BookOpen, Clock, Building2, UserCheck, Calendar, FileText 
 } from 'lucide-react';
 
 export type FacultyMenuId =
   | 'dashboard'
   | 'attendance'
+  | 'timetable'
+  | 'question_paper'
   | 'workstation'
   | 'ai_tutor';
 
@@ -32,6 +34,7 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     dashboard: true,
     academics: true,
+    timetable: true,
     faculty: true,
     ai: true,
   });
@@ -51,10 +54,26 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
     },
     {
       key: 'academics',
-      title: 'Classroom Roll-Call & SMS Alerts',
-      icon: Clock,
+      title: 'Classroom Roll-Call',
+      icon: Fingerprint,
       items: [
-        { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Alerts', icon: Fingerprint },
+        { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS', icon: Fingerprint },
+      ]
+    },
+    {
+      key: 'timetable',
+      title: 'Master Schedule',
+      icon: Calendar,
+      items: [
+        { id: 'timetable', label: 'Faculty Class Timetable', icon: Calendar },
+      ]
+    },
+    {
+      key: 'question_paper',
+      title: 'AI Exam Studio',
+      icon: FileText,
+      items: [
+        { id: 'question_paper', label: 'Bloom\'s Paper Studio', icon: FileText },
       ]
     },
     {
@@ -62,7 +81,7 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
       title: 'Department Roster',
       icon: Building2,
       items: [
-        { id: 'workstation', label: 'Faculty Directory & Students', icon: Users },
+        { id: 'workstation', label: 'Faculty & Student Directory', icon: Users },
       ]
     },
     {
@@ -70,7 +89,7 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
       title: 'BIET Cortex AI',
       icon: Sparkles,
       items: [
-        { id: 'ai_tutor', label: 'Faculty AI Workstation', icon: Sparkles },
+        { id: 'ai_tutor', label: 'Faculty AI Assistant', icon: Sparkles },
       ]
     }
   ];

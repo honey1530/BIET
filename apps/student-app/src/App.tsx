@@ -4,7 +4,7 @@ import { LoginPage } from '../../../src/components/auth/LoginPage';
 import { StudentTopBar } from './components/StudentTopBar';
 import { StudentSidebar, StudentMenuId } from './components/StudentSidebar';
 import { StudentSelfProfileView } from './components/StudentSelfProfileView';
-import { DailyAttendanceTracker } from '../../../src/components/attendance/DailyAttendanceTracker';
+import { DailyAttendanceTracker, ClassTimetable } from '../../../src/components/attendance/DailyAttendanceTracker';
 import { CortexAIHub } from '../../../src/components/ai/CortexAIHub';
 
 export default function StudentStandaloneApp() {
@@ -56,6 +56,7 @@ export default function StudentStandaloneApp() {
               <h2 className="text-base font-bold text-slate-900 font-serif">
                 {activeMenu === 'student_details' && 'Student Details & Bio-Data'}
                 {activeMenu === 'student_admission' && 'Academic Performance & Grade Sheet'}
+                {activeMenu === 'student_timetable' && 'Master Class Schedule & Timetable (Periods 1-7)'}
                 {activeMenu === 'sgpa_calculator' && 'SGPA, CGPA & Percentage Calculator (Subject-Wise & Cleared Backlogs Tracker)'}
                 {activeMenu === 'fee_status' && 'Personal Fee Ledger & AP JVD Scholarship Status'}
                 {activeMenu === 'attendance_log' && 'Daily 7-Periods Biometric Attendance Log'}
@@ -88,6 +89,14 @@ export default function StudentStandaloneApp() {
               studentName={authSession.name}
               department={authSession.department}
               initialSubTab="marks"
+            />
+          )}
+
+          {activeMenu === 'student_timetable' && (
+            <ClassTimetable
+              role="student"
+              department={authSession.department}
+              studentHtno={authSession.username}
             />
           )}
 

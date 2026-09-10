@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { 
   GraduationCap, Clock, Bot, ChevronDown, ChevronRight, User, FileText, 
-  CreditCard, Percent, Sparkles, LogOut, Calculator, Target 
+  CreditCard, Percent, Sparkles, LogOut, Calculator, Target, Calendar 
 } from 'lucide-react';
 
 export type StudentMenuId =
   | 'student_details'
   | 'student_admission'
+  | 'student_timetable'
   | 'sgpa_calculator'
   | 'fee_status'
   | 'attendance_log'
@@ -51,6 +52,7 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
       items: [
         { id: 'student_details', label: 'Student Bio-Data', icon: User },
         { id: 'student_admission', label: 'Academic Marks & Grades', icon: FileText },
+        { id: 'student_timetable', label: 'Master Class Timetable', icon: Calendar },
         { id: 'fee_status', label: 'Fee & JVD Scholarship', icon: CreditCard },
       ]
     },

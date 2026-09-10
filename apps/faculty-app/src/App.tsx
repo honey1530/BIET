@@ -59,11 +59,13 @@ export default function FacultyStandaloneApp() {
               <h2 className="text-base font-bold text-slate-900 font-serif">
                 {activeMenu === 'dashboard' && 'Faculty Dashboard & Workstation Home'}
                 {activeMenu === 'attendance' && 'Classroom Period 1-7 Roll-Call & Parent SMS Alerts'}
+                {activeMenu === 'timetable' && 'Master Class Schedule & Timetable (Periods 1-7)'}
+                {activeMenu === 'question_paper' && 'Bloom\'s Taxonomy AI Question Paper Studio'}
                 {activeMenu === 'workstation' && 'Faculty Directory & Student Roster'}
                 {activeMenu === 'ai_tutor' && 'BIET Cortex Faculty AI Workstation'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Current Session: 2026-27 • UGC Autonomous Institution • JNTUK Kakinada Affiliated Engine
+                Current Session: 2026-27 • UGC Autonomous Institution (BIET R23/R20)
               </p>
             </div>
 
@@ -87,7 +89,7 @@ export default function FacultyStandaloneApp() {
                       Welcome, {authSession.name}!
                     </h2>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Staff &amp; Faculty Workstation for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, view department student rosters, and access faculty AI tools.
+                      Staff &amp; Faculty Workstation for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, view department student rosters, manage timetables, and generate AI question papers.
                     </p>
                   </div>
 
@@ -112,7 +114,7 @@ export default function FacultyStandaloneApp() {
                   <span>Faculty Management Workstations</span>
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Card 1: Attendance Sync */}
                   <div
                     onClick={() => setActiveMenu('attendance')}
@@ -131,7 +133,7 @@ export default function FacultyStandaloneApp() {
                         Period 1-7 Roll-Call &amp; Parent SMS Alerts
                       </h4>
                       <p className="text-xs text-slate-600 mt-1">
-                        Mark period-by-period daily student attendance (Periods 1-7) &amp; trigger instant parent SMS alerts.
+                        Mark period-by-period daily student attendance &amp; trigger instant parent SMS alerts.
                       </p>
                     </div>
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
@@ -140,29 +142,56 @@ export default function FacultyStandaloneApp() {
                     </div>
                   </div>
 
-                  {/* Card 2: Faculty Directory & Roster */}
+                  {/* Card 2: Master Class Timetable */}
                   <div
-                    onClick={() => setActiveMenu('workstation')}
+                    onClick={() => setActiveMenu('timetable')}
                     className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors border border-purple-100">
-                        <Users className="w-6 h-6" />
+                      <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors border border-emerald-100">
+                        <Fingerprint className="w-6 h-6" />
                       </div>
                       <span className="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-200">
-                        {authSession.department} Roster
+                        Master Schedule
                       </span>
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
-                        Faculty Directory &amp; Student Roster
+                        Master Class Schedule &amp; Timetable
                       </h4>
                       <p className="text-xs text-slate-600 mt-1">
-                        View department faculty profiles, syllabus progress &amp; enrolled student marks.
+                        View weekly assigned period slots, subject codes, faculty rooms &amp; interactive student timetable.
                       </p>
                     </div>
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
-                      <span>View Department Roster</span>
+                      <span>View Timetable</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Card 3: AI Question Paper Studio */}
+                  <div
+                    onClick={() => setActiveMenu('question_paper')}
+                    className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors border border-purple-100">
+                        <Sparkles className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-200">
+                        Bloom's Taxonomy
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
+                        Bloom's Question Paper Studio
+                      </h4>
+                      <p className="text-xs text-slate-600 mt-1">
+                        Generate AI-balanced Mid-1, Mid-2, and SEE question papers according to Bloom's taxonomy.
+                      </p>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
+                      <span>Open Question Paper Studio</span>
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -172,8 +201,10 @@ export default function FacultyStandaloneApp() {
           )}
 
           {/* Dynamic Component Content Rendering */}
-          {activeMenu === 'attendance' && <FacultyHub selectedDept={authSession.department} />}
-          {activeMenu === 'workstation' && <FacultyHub selectedDept={authSession.department} />}
+          {activeMenu === 'attendance' && <FacultyHub selectedDept={authSession.department} initialTab="attendance" />}
+          {activeMenu === 'timetable' && <FacultyHub selectedDept={authSession.department} initialTab="timetable" />}
+          {activeMenu === 'question_paper' && <FacultyHub selectedDept={authSession.department} initialTab="paper" />}
+          {activeMenu === 'workstation' && <FacultyHub selectedDept={authSession.department} initialTab="roster" />}
           {activeMenu === 'ai_tutor' && <CortexAIHub />}
         </main>
       </div>

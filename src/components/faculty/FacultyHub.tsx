@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JNTUK_COURSES, SAMPLE_STUDENTS } from '../../data/bietData';
 import { Course, DepartmentCode } from '../../types';
+import { ClassTimetable } from '../attendance/DailyAttendanceTracker';
 import { 
   Users, FileCheck, Sparkles, CheckCircle2, XCircle, Clock, AlertTriangle, 
-  Send, Fingerprint, ShieldCheck, RefreshCw, Check, Smartphone 
+  Send, Fingerprint, ShieldCheck, RefreshCw, Check, Smartphone, Calendar, FileText 
 } from 'lucide-react';
 
 interface FacultyHubProps {
   selectedDept?: DepartmentCode | 'ALL';
+  initialTab?: 'attendance' | 'timetable' | 'paper' | 'roster';
 }
 
-export const FacultyHub: React.FC<FacultyHubProps> = ({ selectedDept = 'ALL' }) => {
+export const FacultyHub: React.FC<FacultyHubProps> = ({ 
+  selectedDept = 'ALL',
+  initialTab = 'attendance'
+}) => {
   const filteredCourses = (selectedDept && selectedDept !== 'ALL')
     ? JNTUK_COURSES.filter(c => c.department === selectedDept)
     : JNTUK_COURSES;
@@ -19,7 +24,11 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({ selectedDept = 'ALL' }) 
     filteredCourses.length > 0 ? filteredCourses[0].code : 'R203102'
   );
   const [selectedPeriod, setSelectedPeriod] = useState<number>(3);
-  const [activeTab, setActiveTab] = useState<'attendance' | 'paper'>('attendance');
+  const [activeTab, setActiveTab] = useState<'attendance' | 'timetable' | 'paper' | 'roster'>(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   // Roster Student Attendance List State (Present / Absent line-by-line roll call)
   const [roster, setRoster] = useState<Array<{
@@ -152,8 +161,10 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({ selectedDept = 'ALL' }) 
       {/* Sub-Tab Switcher */}
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs">
         {[
-          { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Parent Alerts', icon: Fingerprint },
-          { id: 'paper', label: 'Bloom\'s Taxonomy Question Paper Studio', icon: FileCheck },
+          { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Alerts', icon: Fingerprint },
+          { id: 'timetable', label: 'Master Class Timetable', icon: Calendar },
+          { id: 'paper', label: 'Bloom\'s Question Paper Studio', icon: FileText },
+          { id: 'roster', label: 'Department Roster', icon: Users },
         ].map(t => {
           const Icon = t.icon;
           const isActive = activeTab === t.id;
@@ -173,6 +184,19 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({ selectedDept = 'ALL' }) 
           );
         })}
       </div>
+
+      {/* TAB 2: MASTER CLASS TIMETABLE */}
+      {activeTab === 'timetable' && (
+        <ClassTimetable
+          role="faculty"
+          department={selectedDept !== 'ALL' ? selectedDept : 'CSE'}
+          onNavigateToRollCall={(period, code) => {
+            setSelectedPeriod(period);
+            if (code) setSelectedCourseCode(code);
+            setActiveTab('attendance');
+          }}
+        />
+      )}
 
       {/* TAB 1: PERIOD 1-7 SEQUENTIAL ROLL-CALL & PARENT SMS ALERTS */}
       {activeTab === 'attendance' && (

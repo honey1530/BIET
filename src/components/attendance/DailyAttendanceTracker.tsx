@@ -3,7 +3,7 @@ import { DailyAttendanceLog } from '../../types';
 import { SAMPLE_DAILY_ATTENDANCE } from '../../data/bietData';
 import { 
   Calendar, Calculator, ShieldCheck, AlertTriangle, CheckCircle2, 
-  XCircle, Clock, Sparkles, Percent, Target, TrendingUp, Info 
+  XCircle, Clock, Sparkles, Percent, Target, TrendingUp, Info, User, MapPin, Filter, ChevronRight 
 } from 'lucide-react';
 
 interface DailyAttendanceTrackerProps {
@@ -496,6 +496,328 @@ export const DailyAttendanceTracker: React.FC<DailyAttendanceTrackerProps> = ({
                   </li>
                 </ul>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface ClassTimetableProps {
+  role: 'faculty' | 'student';
+  department?: string;
+  studentHtno?: string;
+  facultyName?: string;
+  onNavigateToRollCall?: (periodNo: number, courseCode: string) => void;
+}
+
+interface PeriodSlot {
+  periodNo: number;
+  timeSlot: string;
+  subjectCode: string;
+  subjectName: string;
+  facultyName: string;
+  room: string;
+  section: string;
+  status?: 'COMPLETED' | 'LIVE NOW' | 'UPCOMING';
+  studentAttendance?: 'PRESENT' | 'ABSENT' | 'NOT TAKEN YET';
+}
+
+export const ClassTimetable: React.FC<ClassTimetableProps> = ({
+  role,
+  department = 'CSE',
+  studentHtno,
+  facultyName,
+  onNavigateToRollCall
+}) => {
+  const [selectedDay, setSelectedDay] = useState<string>('Wednesday');
+  const [selectedBranchSection, setSelectedBranchSection] = useState<string>('CSE 3-A');
+  const [selectedSlotModal, setSelectedSlotModal] = useState<PeriodSlot | null>(null);
+
+  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const masterTimetableData: Record<string, PeriodSlot[]> = {
+    Monday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics & Graph Theory', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R203102', subjectName: 'Database Management Systems', facultyName: 'Prof. K. Satyanarayana', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R203103', subjectName: 'Operating Systems', facultyName: 'Dr. M. Sridevi', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 4, timeSlot: '01:15 PM - 02:10 PM', subjectCode: 'R203104', subjectName: 'Computer Networks Lab', facultyName: 'Dr. P. Venkateswara Rao', room: 'Network Lab - 2nd Floor', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 5, timeSlot: '02:10 PM - 03:05 PM', subjectCode: 'R203104', subjectName: 'Computer Networks Lab', facultyName: 'Dr. P. Venkateswara Rao', room: 'Network Lab - 2nd Floor', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 6, timeSlot: '03:05 PM - 04:00 PM', subjectCode: 'R232105', subjectName: 'Java Programming', facultyName: 'Prof. S. N. Murthy', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 7, timeSlot: '04:00 PM - 04:45 PM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+    ],
+    Tuesday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R203102', subjectName: 'Database Management Systems', facultyName: 'Prof. K. Satyanarayana', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R203103', subjectName: 'Operating Systems', facultyName: 'Dr. M. Sridevi', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics & Graph Theory', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 4, timeSlot: '01:15 PM - 02:10 PM', subjectCode: 'R203102', subjectName: 'DBMS Lab (MySQL & Oracle)', facultyName: 'Prof. K. Satyanarayana', room: 'Software Lab 1 - Ground Floor', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 5, timeSlot: '02:10 PM - 03:05 PM', subjectCode: 'R203102', subjectName: 'DBMS Lab (MySQL & Oracle)', facultyName: 'Prof. K. Satyanarayana', room: 'Software Lab 1 - Ground Floor', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 6, timeSlot: '03:05 PM - 04:00 PM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 7, timeSlot: '04:00 PM - 04:45 PM', subjectCode: 'R232105', subjectName: 'Java Programming', facultyName: 'Prof. S. N. Murthy', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+    ],
+    Wednesday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R203103', subjectName: 'Operating Systems', facultyName: 'Dr. M. Sridevi', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R203104', subjectName: 'Computer Networks', facultyName: 'Dr. P. Venkateswara Rao', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'COMPLETED', studentAttendance: 'PRESENT' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R203102', subjectName: 'Database Management Systems', facultyName: 'Prof. K. Satyanarayana', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'LIVE NOW', studentAttendance: 'PRESENT' },
+      { periodNo: 4, timeSlot: '01:15 PM - 02:10 PM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics & Graph Theory', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 5, timeSlot: '02:10 PM - 03:05 PM', subjectCode: 'R232105', subjectName: 'Java Programming Lab', facultyName: 'Prof. S. N. Murthy', room: 'Java Lab - 1st Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 6, timeSlot: '03:05 PM - 04:00 PM', subjectCode: 'R232105', subjectName: 'Java Programming Lab', facultyName: 'Prof. S. N. Murthy', room: 'Java Lab - 1st Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 7, timeSlot: '04:00 PM - 04:45 PM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+    ],
+    Thursday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R203104', subjectName: 'Computer Networks', facultyName: 'Dr. P. Venkateswara Rao', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R232105', subjectName: 'Java Programming', facultyName: 'Prof. S. N. Murthy', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 4, timeSlot: '01:15 PM - 02:10 PM', subjectCode: 'R203102', subjectName: 'Database Management Systems', facultyName: 'Prof. K. Satyanarayana', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 5, timeSlot: '02:10 PM - 03:05 PM', subjectCode: 'R203103', subjectName: 'OS Linux Kernel Lab', facultyName: 'Dr. M. Sridevi', room: 'OS Lab - 2nd Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 6, timeSlot: '03:05 PM - 04:00 PM', subjectCode: 'R203103', subjectName: 'OS Linux Kernel Lab', facultyName: 'Dr. M. Sridevi', room: 'OS Lab - 2nd Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 7, timeSlot: '04:00 PM - 04:45 PM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+    ],
+    Friday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R232105', subjectName: 'Java Programming', facultyName: 'Prof. S. N. Murthy', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R203104', subjectName: 'Computer Networks', facultyName: 'Dr. P. Venkateswara Rao', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 4, timeSlot: '01:15 PM - 02:10 PM', subjectCode: 'R203103', subjectName: 'Operating Systems', facultyName: 'Dr. M. Sridevi', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 5, timeSlot: '02:10 PM - 03:05 PM', subjectCode: 'R203102', subjectName: 'Database Management Systems', facultyName: 'Prof. K. Satyanarayana', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 6, timeSlot: '03:05 PM - 04:00 PM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 7, timeSlot: '04:00 PM - 04:45 PM', subjectCode: 'LIB-301', subjectName: 'Library & Self Learning', facultyName: 'Prof. S. N. Murthy', room: 'Central Library 2nd Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+    ],
+    Saturday: [
+      { periodNo: 1, timeSlot: '09:30 AM - 10:25 AM', subjectCode: 'R203106', subjectName: 'Formal Languages & Automata', facultyName: 'Dr. G. Ramesh', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 2, timeSlot: '10:25 AM - 11:20 AM', subjectCode: 'R232101', subjectName: 'Discrete Mathematics', facultyName: 'Dr. V. Rama Krishna', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 3, timeSlot: '11:30 AM - 12:25 PM', subjectCode: 'R232105', subjectName: 'Java Programming', facultyName: 'Prof. S. N. Murthy', room: 'Room 301 - Main Block', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+      { periodNo: 4, timeSlot: '01:15 PM - 04:00 PM', subjectCode: 'PROJ-301', subjectName: 'Mini Project & Industry Mentorship', facultyName: 'Dr. M. Sridevi', room: 'Innovation Lab - 3rd Floor', section: 'CSE 3-A', status: 'UPCOMING', studentAttendance: 'NOT TAKEN YET' },
+    ]
+  };
+
+  const daySlots = masterTimetableData[selectedDay] || masterTimetableData['Wednesday'];
+
+  return (
+    <div className="space-y-6 animate-fadeIn selection:bg-indigo-600 selection:text-white">
+      {/* Top Header Card */}
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 font-serif flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-600" />
+            <span>Master Class Schedule &amp; Timetable (Periods 1-7)</span>
+          </h2>
+          <p className="text-xs text-slate-500 font-medium">
+            {role === 'faculty' 
+              ? `Faculty Schedule for ${facultyName || 'Dr. K. Satyanarayana'} • ${department} Department` 
+              : `B.Tech Class Schedule for Student (${studentHtno || '24AP1A0558'} • ${department} Branch)`}
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-slate-500" />
+            <select
+              value={selectedBranchSection}
+              onChange={(e) => setSelectedBranchSection(e.target.value)}
+              className="bg-slate-50 border border-slate-200 font-bold text-slate-900 text-xs rounded-xl px-3 py-2 focus:outline-none focus:bg-white cursor-pointer"
+            >
+              <option value="CSE 3-A">CSE 3rd Year (Section A)</option>
+              <option value="CSE 3-B">CSE 3rd Year (Section B)</option>
+              <option value="ECE 3-A">ECE 3rd Year (Section A)</option>
+              <option value="EEE 3-A">EEE 3rd Year (Section A)</option>
+              <option value="AIDS 3-A">AIDS 3rd Year (Section A)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Weekday Switcher Tabs */}
+      <div className="bg-white border border-slate-200 p-2 rounded-2xl flex items-center justify-between shadow-xs overflow-x-auto">
+        <div className="flex space-x-1.5 min-w-max">
+          {weekdays.map((d) => (
+            <button
+              key={d}
+              onClick={() => setSelectedDay(d)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                selectedDay === d
+                  ? 'bg-indigo-600 text-white shadow-xs scale-105'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              {d}
+            </button>
+          ))}
+        </div>
+
+        <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full hidden sm:inline-block">
+          7 Periods / Day
+        </span>
+      </div>
+
+      {/* 7 Periods Slot Timeline Breakdown */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="font-bold text-slate-900 text-sm font-serif uppercase tracking-wider flex items-center gap-2">
+            <Clock className="w-4 h-4 text-indigo-600" />
+            <span>{selectedDay} Class Schedule ({selectedBranchSection})</span>
+          </h3>
+          <span className="text-xs text-slate-500 font-medium">Click period row for course details &amp; roll call</span>
+        </div>
+
+        <div className="space-y-3">
+          {daySlots.map((slot) => {
+            const isLive = slot.status === 'LIVE NOW';
+            const isCompleted = slot.status === 'COMPLETED';
+
+            return (
+              <div
+                key={slot.periodNo}
+                onClick={() => setSelectedSlotModal(slot)}
+                className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-all ${
+                  isLive
+                    ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-indigo-500/20 shadow-xs'
+                    : isCompleted
+                    ? 'bg-white border-slate-200 hover:border-indigo-300'
+                    : 'bg-slate-50/80 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="flex items-center space-x-3.5">
+                  <div className={`w-10 h-10 rounded-xl font-black text-xs flex flex-col items-center justify-center shadow-2xs ${
+                    isLive
+                      ? 'bg-indigo-600 text-white'
+                      : isCompleted
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-800 text-white'
+                  }`}>
+                    <span className="text-[9px] uppercase tracking-tighter opacity-80">Period</span>
+                    <span className="text-sm">P{slot.periodNo}</span>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-sm text-slate-900">{slot.subjectName}</span>
+                      <span className="font-mono text-xs bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-bold">
+                        {slot.subjectCode}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                      <span className="flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                        {slot.timeSlot}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1 font-semibold text-slate-700">
+                        <User className="w-3.5 h-3.5 text-slate-500" />
+                        {slot.facultyName}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1 font-mono text-slate-600">
+                        <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                        {slot.room}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 self-end sm:self-center">
+                  {role === 'student' && slot.studentAttendance && (
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                      slot.studentAttendance === 'PRESENT'
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                        : slot.studentAttendance === 'ABSENT'
+                        ? 'bg-rose-100 text-rose-800 border-rose-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {slot.studentAttendance === 'PRESENT' && '✓ Attended'}
+                      {slot.studentAttendance === 'ABSENT' && '✖ Absent'}
+                      {slot.studentAttendance === 'NOT TAKEN YET' && 'Upcoming'}
+                    </span>
+                  )}
+
+                  <span className={`text-xs font-black px-3 py-1 rounded-full border ${
+                    isLive
+                      ? 'bg-indigo-600 text-white animate-pulse'
+                      : isCompleted
+                      ? 'bg-slate-100 text-slate-700 border-slate-200'
+                      : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}>
+                    {slot.status}
+                  </span>
+
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Period Detail Interactive Modal */}
+      {selectedSlotModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider block">
+                  Period {selectedSlotModal.periodNo} Slot Details ({selectedDay})
+                </span>
+                <h3 className="text-lg font-bold text-slate-900 font-serif">{selectedSlotModal.subjectName}</h3>
+              </div>
+              <button
+                onClick={() => setSelectedSlotModal(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Subject Code:</span>
+                  <span className="font-mono font-bold text-indigo-700">{selectedSlotModal.subjectCode}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Time Slot:</span>
+                  <span className="font-bold text-slate-900">{selectedSlotModal.timeSlot}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Assigned Faculty:</span>
+                  <span className="font-bold text-slate-900">{selectedSlotModal.facultyName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Room Location:</span>
+                  <span className="font-bold text-rose-700 font-mono">{selectedSlotModal.room}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Class Section:</span>
+                  <span className="font-bold text-slate-900">{selectedSlotModal.section}</span>
+                </div>
+              </div>
+
+              {role === 'faculty' && (
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      const slot = selectedSlotModal;
+                      setSelectedSlotModal(null);
+                      if (onNavigateToRollCall) {
+                        onNavigateToRollCall(slot.periodNo, slot.subjectCode);
+                      }
+                    }}
+                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-2 shadow-xs transition-colors"
+                  >
+                    <span>▶ Take Period {selectedSlotModal.periodNo} Roll-Call Now</span>
+                  </button>
+                </div>
+              )}
+
+              {role === 'student' && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-950 font-medium space-y-1">
+                  <div className="flex items-center gap-1 font-bold text-emerald-900">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Attendance Record Status</span>
+                  </div>
+                  <p>Your biometric attendance for Period {selectedSlotModal.periodNo} is verified as <strong>{selectedSlotModal.studentAttendance || 'PRESENT'}</strong>.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

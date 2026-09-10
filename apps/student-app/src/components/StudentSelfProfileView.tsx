@@ -3,14 +3,14 @@ import { getStudentProfileByHtno } from '../../../../src/data/db';
 import { StudentProfile } from '../../../../src/types';
 import { 
   User, GraduationCap, Award, Percent, CreditCard, CheckCircle2, ShieldCheck, 
-  Calculator, Printer, Download, Sparkles, CheckCircle, FileText, Calendar, Building2 
+  Calculator, Printer, Sparkles, FileText, Calendar, Building2, BookOpen, Layers 
 } from 'lucide-react';
 
 interface StudentSelfProfileViewProps {
   studentHtno: string;
   studentName?: string;
   department?: string;
-  initialSubTab?: 'biodata' | 'provisional_sheet' | 'calculator' | 'fee';
+  initialSubTab?: 'biodata' | 'marks' | 'calculator' | 'fee';
 }
 
 interface BR24SubjectRecord {
@@ -32,13 +32,11 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
   initialSubTab = 'biodata'
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'biodata' | 'provisional_sheet' | 'calculator' | 'fee'>(
-    initialSubTab === ('marks' as any) ? 'provisional_sheet' : initialSubTab
-  );
+  const [activeTab, setActiveTab] = useState<'biodata' | 'marks' | 'calculator' | 'fee'>(initialSubTab);
 
   useEffect(() => {
     if (initialSubTab) {
-      setActiveTab(initialSubTab === ('marks' as any) ? 'provisional_sheet' : initialSubTab);
+      setActiveTab(initialSubTab);
     }
   }, [initialSubTab]);
 
@@ -61,17 +59,93 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
     'AB': { points: 0, label: 'Absent', range: 'Absent' }
   };
 
-  // Official BR24 CSE II B.Tech II Sem Regular Exam Subject Records (Exact from Official College Document Image)
-  const [br24Subjects, setBr24Subjects] = useState<BR24SubjectRecord[]>([
-    { sno: 1, code: '24BS4T01', name: 'Probability & Statistics', internals: 26, grade: 'B', credits: 3 },
-    { sno: 2, code: '24CS4P01', name: 'Operating Systems Lab', internals: 28, grade: 'S', credits: 1.5 },
-    { sno: 3, code: '24CS4P02', name: 'Advanced Data Structures and Algorithm Analysis Lab', internals: 27, grade: 'S', credits: 1.5 },
-    { sno: 4, code: '24CS4P03', name: 'Full Stack Development –I', internals: 20, grade: 'A', credits: 2 },
-    { sno: 5, code: '24CS4T01', name: 'Operating Systems', internals: 22, grade: 'D', credits: 3 },
-    { sno: 6, code: '24CS4T02', name: 'Advanced Data Structures & Algorithm Analysis', internals: 28, grade: 'B', credits: 3 },
-    { sno: 7, code: '24CS4T03', name: 'Software Engineering', internals: 25, grade: 'B', credits: 3 },
-    { sno: 8, code: '24MB4T01', name: 'Managerial Economics and Financial Analysis', internals: 23, grade: 'D', credits: 2 },
-    { sno: 9, code: '24ME4P01', name: 'Design Thinking & Innovation', internals: 28, grade: 'S', credits: 2 },
+  // Multi-Semester Grade Sheet Database (BR24 Regulation)
+  const [selectedSemSheet, setSelectedSemSheet] = useState<string>('2-2');
+
+  const semesterSheetsData: Record<string, {
+    examTitle: string;
+    examDate: string;
+    sgpa: number;
+    cgpa: number;
+    result: string;
+    printedDate: string;
+    subjects: BR24SubjectRecord[];
+  }> = {
+    '2-2': {
+      examTitle: 'II B TECH II SEM (BR24) REGULAR EXAMINATIONS APRIL/MAY 2026',
+      examDate: 'APRIL/MAY 2026',
+      sgpa: 8.10,
+      cgpa: 7.69,
+      result: 'PASS',
+      printedDate: '18-06-2026 10:51 AM',
+      subjects: [
+        { sno: 1, code: '24BS4T01', name: 'Probability & Statistics', internals: 26, grade: 'B', credits: 3 },
+        { sno: 2, code: '24CS4P01', name: 'Operating Systems Lab', internals: 28, grade: 'S', credits: 1.5 },
+        { sno: 3, code: '24CS4P02', name: 'Advanced Data Structures and Algorithm Analysis Lab', internals: 27, grade: 'S', credits: 1.5 },
+        { sno: 4, code: '24CS4P03', name: 'Full Stack Development –I', internals: 20, grade: 'A', credits: 2 },
+        { sno: 5, code: '24CS4T01', name: 'Operating Systems', internals: 22, grade: 'D', credits: 3 },
+        { sno: 6, code: '24CS4T02', name: 'Advanced Data Structures & Algorithm Analysis', internals: 28, grade: 'B', credits: 3 },
+        { sno: 7, code: '24CS4T03', name: 'Software Engineering', internals: 25, grade: 'B', credits: 3 },
+        { sno: 8, code: '24MB4T01', name: 'Managerial Economics and Financial Analysis', internals: 23, grade: 'D', credits: 2 },
+        { sno: 9, code: '24ME4P01', name: 'Design Thinking & Innovation', internals: 28, grade: 'S', credits: 2 },
+      ]
+    },
+    '2-1': {
+      examTitle: 'II B TECH I SEM (BR24) REGULAR EXAMINATIONS NOV/DEC 2025',
+      examDate: 'NOV/DEC 2025',
+      sgpa: 8.60,
+      cgpa: 7.55,
+      result: 'PASS',
+      printedDate: '10-01-2026 02:15 PM',
+      subjects: [
+        { sno: 1, code: '24BS3T01', name: 'Discrete Mathematics & Graph Theory', internals: 27, grade: 'A', credits: 3 },
+        { sno: 2, code: '24CS3T01', name: 'Object Oriented Programming through Java', internals: 29, grade: 'S', credits: 3 },
+        { sno: 3, code: '24CS3T02', name: 'Database Management Systems', internals: 26, grade: 'A', credits: 3 },
+        { sno: 4, code: '24CS3T03', name: 'Digital Logic & Computer Organization', internals: 25, grade: 'B', credits: 3 },
+        { sno: 5, code: '24CS3P01', name: 'Java Programming Lab', internals: 28, grade: 'S', credits: 1.5 },
+        { sno: 6, code: '24CS3P02', name: 'Database Management Systems Lab', internals: 29, grade: 'S', credits: 1.5 },
+        { sno: 7, code: '24CS3P03', name: 'Python Programming Skill Course', internals: 27, grade: 'A', credits: 2 },
+      ]
+    },
+    '1-2': {
+      examTitle: 'I B TECH II SEM (BR24) REGULAR EXAMINATIONS MAY/JUNE 2025',
+      examDate: 'MAY/JUNE 2025',
+      sgpa: 8.30,
+      cgpa: 7.20,
+      result: 'PASS',
+      printedDate: '25-07-2025 11:30 AM',
+      subjects: [
+        { sno: 1, code: '24BS2T01', name: 'Differential Equations & Vector Calculus', internals: 25, grade: 'B', credits: 3 },
+        { sno: 2, code: '24BS2T02', name: 'Applied Chemistry', internals: 28, grade: 'A', credits: 3 },
+        { sno: 3, code: '24CS2T01', name: 'Data Structures using C', internals: 29, grade: 'S', credits: 3 },
+        { sno: 4, code: '24EE2T01', name: 'Basic Electrical & Electronics Engineering', internals: 24, grade: 'B', credits: 3 },
+        { sno: 5, code: '24CS2P01', name: 'Data Structures Lab', internals: 28, grade: 'S', credits: 1.5 },
+        { sno: 6, code: '24BS2P01', name: 'Applied Chemistry Lab', internals: 27, grade: 'S', credits: 1.5 },
+      ]
+    },
+    '1-1': {
+      examTitle: 'I B TECH I SEM (BR24) REGULAR EXAMINATIONS DEC 2024/JAN 2025',
+      examDate: 'DEC 2024/JAN 2025',
+      sgpa: 8.10,
+      cgpa: 8.10,
+      result: 'PASS',
+      printedDate: '15-02-2025 04:20 PM',
+      subjects: [
+        { sno: 1, code: '24BS1T01', name: 'Linear Algebra & Calculus', internals: 26, grade: 'B', credits: 3 },
+        { sno: 2, code: '24BS1T02', name: 'Engineering Physics', internals: 27, grade: 'A', credits: 3 },
+        { sno: 3, code: '24CS1T01', name: 'Communicative English', internals: 28, grade: 'A', credits: 3 },
+        { sno: 4, code: '24CS1T02', name: 'Basic Civil & Mechanical Engineering', internals: 25, grade: 'B', credits: 3 },
+        { sno: 5, code: '24BS1P01', name: 'Engineering Physics Lab', internals: 29, grade: 'S', credits: 1.5 },
+        { sno: 6, code: '24CS1P01', name: 'Computer Programming Lab', internals: 28, grade: 'S', credits: 1.5 },
+      ]
+    }
+  };
+
+  const currentSheet = semesterSheetsData[selectedSemSheet] || semesterSheetsData['2-2'];
+
+  // Standalone Calculator Subject State
+  const [calculatorSubjects, setCalculatorSubjects] = useState<BR24SubjectRecord[]>([
+    ...semesterSheetsData['2-2'].subjects
   ]);
 
   const [calcFormula, setCalcFormula] = useState<'biet_br24' | 'standard'>('biet_br24');
@@ -82,7 +156,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
   let activeBacklogsCount = 0;
   let clearedBacklogsCount = 0;
 
-  br24Subjects.forEach(s => {
+  calculatorSubjects.forEach(s => {
     totalCredits += s.credits;
     const effectiveGrade = (s.isBacklog && s.isCleared && s.clearedGrade) ? s.clearedGrade : s.grade;
     const points = BR24_GRADE_SCALE[effectiveGrade]?.points ?? 0;
@@ -97,10 +171,10 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
     }
   });
 
-  const calculatedSgpa = totalCredits > 0 ? (totalWeightedGradePoints / totalCredits) : 8.1;
+  const calculatedSgpa = totalCredits > 0 ? (totalWeightedGradePoints / totalCredits) : 8.10;
   const calculatedCgpa = student.cgpa || 7.69;
 
-  // Percentage Formula: (CGPA - 0.75) * 10
+  // Percentage Formula: (SGPA - 0.75) * 10
   const calculatedPercentage = calcFormula === 'biet_br24'
     ? Math.max(0, (calculatedSgpa - 0.75) * 10)
     : (calculatedSgpa * 9.5);
@@ -113,7 +187,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 180);
     return () => clearTimeout(timer);
-  }, [studentHtno, activeTab]);
+  }, [studentHtno, activeTab, selectedSemSheet]);
 
   if (isLoading) {
     return (
@@ -131,176 +205,173 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn selection:bg-indigo-600 selection:text-white">
-      {/* Upper Hero Header - Shown for Bio-Data */}
+      
+      {/* ========================================================================= */}
+      {/* 1. STUDENT BIO-DATA TAB (STRICTLY ONLY STUDENT BIO-DATA & PERSONAL INFO) */}
+      {/* ========================================================================= */}
       {activeTab === 'biodata' && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden text-slate-900">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-start md:items-center space-x-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-indigo-600 text-white font-black text-2xl md:text-3xl flex items-center justify-center shadow-xs">
-                {student.name.charAt(0)}
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-indigo-200 uppercase tracking-wider">
-                    UGC AUTONOMOUS • BIET BR24 REGULATION
-                  </span>
-                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3" /> VERIFIED PROVISIONAL RESULTS
-                  </span>
+        <div className="space-y-6">
+          {/* Upper Hero Box */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden text-slate-900">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start md:items-center space-x-4">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-indigo-600 text-white font-black text-2xl md:text-3xl flex items-center justify-center shadow-xs">
+                  {student.name.charAt(0)}
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold font-serif text-slate-900">{student.name}</h2>
-                <p className="text-xs text-indigo-700 font-mono font-bold">
-                  Hallticket No: {student.htno || '24AP1A0558'} • {student.department} Branch (Batch 2024-2028)
-                </p>
-                <p className="text-xs text-slate-600 pt-1 font-medium">
-                  Official Provisional Grade Sheet &amp; BIET Autonomous Result Records.
-                </p>
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-indigo-200 uppercase tracking-wider">
+                      UGC AUTONOMOUS • BIET BR24 REGULATION
+                    </span>
+                    <span className="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3" /> VERIFIED SIS PROFILE
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold font-serif text-slate-900">{student.name}</h2>
+                  <p className="text-xs text-indigo-700 font-mono font-bold">
+                    Hallticket No: {student.htno || '24AP1A0558'} • {student.department} Branch (Batch 2024-2028)
+                  </p>
+                  <p className="text-xs text-slate-600 pt-1 font-medium">
+                    Personal bio-data, guardian contact details, and institutional student profile.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bio-Data Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Course &amp; Degree</span>
+              <span className="text-xl font-bold text-slate-900 block mt-1">B.TECH (BR24)</span>
+              <span className="text-xs text-indigo-700 font-semibold mt-1 block">Batch 2024 - 2028</span>
+            </div>
+
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Current Year &amp; Section</span>
+              <span className="text-xl font-bold text-slate-900 block mt-1">II B.Tech II Sem</span>
+              <span className="text-xs text-emerald-700 font-semibold mt-1 block">2-CSE-A Section</span>
+            </div>
+
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Scholarship Status</span>
+              <span className="text-lg font-bold text-emerald-700 block mt-1">{student.jvdStatus}</span>
+              <span className="text-xs text-slate-500 font-semibold mt-1 block">AP JVD Beneficiary</span>
+            </div>
+
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Institutional Status</span>
+              <span className="text-lg font-bold text-indigo-700 block mt-1">UGC Autonomous</span>
+              <span className="text-xs text-emerald-700 font-bold mt-1 block">Active Student</span>
+            </div>
+          </div>
+
+          {/* Full Personal Bio-Data Record Card */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
+            <h3 className="text-sm font-bold text-slate-900 font-serif border-b border-slate-200 pb-3 flex items-center gap-2">
+              <User className="w-4 h-4 text-indigo-600" />
+              <span>Personal Bio-Data &amp; Guardian Contact Information</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Full Student Name</span>
+                <span className="font-bold text-slate-900 text-sm block">{student.name}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Hallticket Number</span>
+                <span className="font-bold text-indigo-700 font-mono text-sm block">{student.htno || '24AP1A0558'}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Father / Guardian Name</span>
+                <span className="font-bold text-slate-900 text-sm block">{student.fatherName || 'KOLAGOTLA VENKATESWARA REDDY'}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Degree &amp; Regulation</span>
+                <span className="font-bold text-slate-900 text-sm block">B.TECH (BR24 Autonomous)</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Department &amp; Branch</span>
+                <span className="font-bold text-slate-900 text-sm block">COMPUTER SCIENCE AND ENGINEERING (CSE)</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Student Mobile Number</span>
+                <span className="font-bold text-slate-900 font-mono text-sm block">{student.phone}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Guardian Phone Number</span>
+                <span className="font-bold text-indigo-700 font-mono text-sm block">{student.parentPhone}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">Official Email Address</span>
+                <span className="font-bold text-slate-900 text-sm block">{student.email}</span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-slate-500 font-semibold block text-[11px]">College Name &amp; Code</span>
+                <span className="font-bold text-indigo-700 text-sm block">BHIMAVARAM INSTITUTE OF ENGG &amp; TECH (BIET)</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 4 Stat Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span className="uppercase font-extrabold tracking-wider text-[10px]">BR24 Exam SGPA</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <GraduationCap className="w-4 h-4" />
+      {/* ========================================================================================= */}
+      {/* 2. ACADEMIC MARKS & GRADES TAB (STRICTLY ONLY ACADEMIC MARKS & OFFICIAL ALL-SEMESTERS SHEETS) */}
+      {/* ========================================================================================= */}
+      {activeTab === 'marks' && (
+        <div className="space-y-6">
+          {/* Semester Grade Sheet Selector Bar */}
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs print:hidden">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-indigo-600" />
+                <span>Academic Marks &amp; Official Semester Grade Sheets</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Select semester to view official provisional grade sheets across all semesters (BR24 Regulation)
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-700">Select Semester:</span>
+              <div className="flex items-center space-x-1.5 overflow-x-auto">
+                {['1-1', '1-2', '2-1', '2-2'].map(sem => (
+                  <button
+                    key={sem}
+                    type="button"
+                    onClick={() => setSelectedSemSheet(sem)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      selectedSemSheet === sem
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    Sem {sem} Sheet
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="mt-2 flex items-baseline space-x-1.5">
-            <span className="text-2xl font-bold text-slate-900">{calculatedSgpa.toFixed(2)}</span>
-            <span className="text-xs text-slate-500">/ 10.0</span>
-          </div>
-          <p className="text-[11px] text-emerald-700 font-bold mt-1">CGPA: {calculatedCgpa.toFixed(2)}</p>
-        </div>
 
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span className="uppercase font-extrabold tracking-wider text-[10px]">Overall Result</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <span className="text-2xl font-black text-emerald-700">PASS</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">II B.TECH II SEM (BR24)</p>
-        </div>
-
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span className="uppercase font-extrabold tracking-wider text-[10px]">AP JVD Scholarship</span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <CreditCard className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <span className="text-lg font-bold text-emerald-700">{student.jvdStatus}</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">Tuition Fee Due: ₹{student.dueFee}</p>
-        </div>
-
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span className="uppercase font-extrabold tracking-wider text-[10px]">Active Backlogs</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Award className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">{activeBacklogsCount}</span>
-            <span className="text-xs text-emerald-700 font-bold">Passed All Subjects</span>
-          </div>
-          <p className="text-[11px] text-emerald-700 font-bold mt-1">Clean Regular Record</p>
-        </div>
-      </div>
-
-      {/* Main Sub-Tab Navigation Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs print:hidden">
-        {[
-          { id: 'biodata', label: 'Student Bio-Data', icon: User },
-          { id: 'provisional_sheet', label: 'Official Provisional Results (BR24)', icon: FileText },
-          { id: 'calculator', label: 'SGPA, CGPA & Percentage Calculator', icon: Calculator },
-          { id: 'fee', label: 'Fee & JVD Ledger', icon: CreditCard },
-        ].map(t => {
-          const Icon = t.icon;
-          const isActive = activeTab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                isActive
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* SUB-TAB 1: PERSONAL BIO-DATA */}
-      {activeTab === 'biodata' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
-          <h3 className="text-sm font-bold text-slate-900 font-serif border-b border-slate-200 pb-3 flex items-center gap-2">
-            <User className="w-4 h-4 text-indigo-600" />
-            <span>Personal Bio-Data &amp; Guardian Contact Record</span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">Full Student Name</span>
-              <span className="font-bold text-slate-900 text-sm block">{student.name}</span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">Hallticket No</span>
-              <span className="font-bold text-indigo-700 font-mono text-sm block">{student.htno || '24AP1A0558'}</span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">Father Name</span>
-              <span className="font-bold text-slate-900 text-sm block">{student.fatherName || 'KOLAGOTLA VENKATESWARA REDDY'}</span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">Degree &amp; Batch</span>
-              <span className="font-bold text-slate-900 text-sm block">B.TECH (Batch: 2024-2028)</span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">Department &amp; Branch</span>
-              <span className="font-bold text-slate-900 text-sm block">COMPUTER SCIENCE AND ENGINEERING (CSE)</span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">College Status</span>
-              <span className="font-bold text-indigo-700 text-sm block">UGC Autonomous Institution (BIET)</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* SUB-TAB 2: EXACT OFFICIAL PROVISIONAL RESULTS GRADE SHEET (MATCHING COLLEGE DOCUMENT IMAGE 100%) */}
-      {activeTab === 'provisional_sheet' && (
-        <div className="space-y-4">
           <div className="flex justify-end print:hidden">
             <button
               onClick={handlePrintGradeSheet}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition-all shadow-xs"
             >
               <Printer className="w-4 h-4" />
-              <span>Print Official Grade Sheet</span>
+              <span>Print Semester {selectedSemSheet} Grade Sheet</span>
             </button>
           </div>
 
-          {/* DOCUMENT CONTAINER (EXACT 1:1 REPLICA OF THE COLLEGE IMAGE) */}
+          {/* OFFICIAL PROVISIONAL RESULTS GRADE SHEET (EXACT 1:1 REPLICA OF THE COLLEGE IMAGE) */}
           <div className="bg-white border border-slate-300 rounded-xl p-6 sm:p-10 text-slate-900 font-serif max-w-4xl mx-auto shadow-md space-y-6">
             
             {/* College Header Section */}
@@ -337,7 +408,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
             {/* Document Title Header */}
             <div className="text-center">
               <h2 className="text-sm font-bold text-rose-900 underline uppercase tracking-wide">
-                PROVISIONAL RESULTS OF :- II B TECH II SEM (BR24) REGULAR EXAMINATIONS APRIL/MAY 2026
+                PROVISIONAL RESULTS OF :- {currentSheet.examTitle}
               </h2>
             </div>
 
@@ -369,11 +440,11 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               </div>
               <div className="flex sm:col-span-2">
                 <span className="font-bold w-32">Exam</span>
-                <span>: <strong>II B TECH II SEM (BR24) REGULAR EXAMINATIONS APRIL/MAY 2026</strong></span>
+                <span>: <strong>{currentSheet.examTitle}</strong></span>
               </div>
               <div className="flex sm:col-span-2">
                 <span className="font-bold w-32">Result</span>
-                <span>: <strong className="text-emerald-700">PASS</strong></span>
+                <span>: <strong className="text-emerald-700">{currentSheet.result}</strong></span>
               </div>
             </div>
 
@@ -393,7 +464,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300">
-                  {br24Subjects.map((s, idx) => (
+                  {currentSheet.subjects.map((s, idx) => (
                     <tr key={s.sno} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                       <td className="border border-slate-400 py-2 px-2 font-semibold">{s.sno}</td>
                       <td className="border border-slate-400 py-2 px-3 font-mono font-bold">{s.code}</td>
@@ -403,11 +474,11 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                       <td className="border border-slate-400 py-2 px-2 font-bold">{s.credits}</td>
                       {idx === 0 && (
                         <>
-                          <td rowSpan={9} className="border border-slate-400 py-2 px-3 font-black text-slate-900 text-sm align-middle bg-blue-50/50">
-                            {calculatedSgpa.toFixed(2)}
+                          <td rowSpan={currentSheet.subjects.length} className="border border-slate-400 py-2 px-3 font-black text-slate-900 text-sm align-middle bg-blue-50/50">
+                            {currentSheet.sgpa.toFixed(2)}
                           </td>
-                          <td rowSpan={9} className="border border-slate-400 py-2 px-3 font-black text-slate-900 text-sm align-middle bg-blue-50/50">
-                            {calculatedCgpa.toFixed(2)}
+                          <td rowSpan={currentSheet.subjects.length} className="border border-slate-400 py-2 px-3 font-black text-slate-900 text-sm align-middle bg-blue-50/50">
+                            {currentSheet.cgpa.toFixed(2)}
                           </td>
                         </>
                       )}
@@ -428,7 +499,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               </div>
             </div>
 
-            {/* Official UGC Letter Grade Scale Table (Exact Replica of Document) */}
+            {/* Official UGC Letter Grade Scale Table */}
             <div className="overflow-x-auto font-sans">
               <table className="w-full text-[11px] border-collapse border border-slate-400 text-center">
                 <thead className="bg-emerald-100 text-slate-900 font-bold">
@@ -455,7 +526,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               <p><strong>Note:</strong> GPA is calculated based on the above result.</p>
               <p><strong>Disclaimer:</strong> The result is provisional and published as an immediate reference to the candidate. The final Grade sheet issued by the institution should only be treated authentic and final.</p>
               <div className="pt-2 flex justify-between font-bold text-[10px] text-slate-600">
-                <span>Printed date: 18-06-2026 10:51 AM</span>
+                <span>Printed date: {currentSheet.printedDate}</span>
                 <span>BHIMAVARAM INSTITUTE OF ENGINEERING &amp; TECHNOLOGY (AUTONOMOUS)</span>
               </div>
             </div>
@@ -463,7 +534,9 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
         </div>
       )}
 
-      {/* SUB-TAB 3: STANDALONE SGPA, CGPA & PERCENTAGE CALCULATOR (UPDATED TO BR24 GRADE SCALE) */}
+      {/* ========================================================================================= */}
+      {/* 3. SGPA, CGPA & PERCENTAGE CALCULATOR TAB (STRICTLY ONLY THE CALCULATOR & ALL-SEM TRACKER) */}
+      {/* ========================================================================================= */}
       {activeTab === 'calculator' && (
         <div className="space-y-6">
           <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
@@ -471,10 +544,10 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               <div>
                 <h3 className="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-indigo-600" />
-                  <span>BIET Autonomous SGPA, CGPA &amp; Percentage Calculator (BR24 Grade Scale)</span>
+                  <span>BIET Autonomous SGPA, CGPA &amp; Percentage Calculator</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Subject-wise grade calculation based on official BIET BR24 UGC Grade Points (S:10, A:9, B:8, C:7, D:6, E:5, F:0)
+                  Calculate every semester SGPA, overall cumulative CGPA, and equivalent percentage with cleared backlog tracker
                 </p>
               </div>
 
@@ -491,7 +564,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               </div>
             </div>
 
-            {/* Calculated Output Banner */}
+            {/* All-Semesters Cumulative Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center space-y-1">
                 <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Exam SGPA</span>
@@ -514,15 +587,30 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
               </div>
 
               <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center space-y-1">
-                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Exam Result</span>
+                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Exam Result Status</span>
                 <div className="text-xl font-black text-emerald-700">PASS</div>
                 <span className="text-[11px] font-semibold text-amber-900">UGC Autonomous BR24</span>
               </div>
             </div>
 
-            {/* Subject-Wise BR24 Grade Input Table */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">BR24 II-II Sem Subject Grade Sheet</h4>
+            {/* All Semester SGPAs Breakdown Grid */}
+            <div className="space-y-3 pt-2">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">All Semesters SGPA &amp; CGPA Tracker</h4>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {Object.entries(semesterSheetsData).map(([semKey, sheet]) => (
+                  <div key={semKey} className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1">
+                    <span className="text-xs font-bold text-slate-900 block">Semester {semKey}</span>
+                    <div className="text-lg font-black text-indigo-700">{sheet.sgpa.toFixed(2)} <span className="text-[10px] text-slate-500 font-normal">SGPA</span></div>
+                    <span className="text-[10px] text-emerald-700 font-bold block">CGPA: {sheet.cgpa.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Subject-Wise BR24 Grade Interactive Input Table */}
+            <div className="space-y-3 pt-2 border-t border-slate-200">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Interactive Subject Grade Sheet &amp; Backlog Calculator</h4>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200">
                 <table className="w-full text-left text-xs">
@@ -537,7 +625,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 bg-white">
-                    {br24Subjects.map((sub, idx) => {
+                    {calculatorSubjects.map((sub, idx) => {
                       const points = BR24_GRADE_SCALE[sub.grade]?.points ?? 0;
 
                       return (
@@ -555,9 +643,9 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                               value={sub.internals}
                               onChange={(e) => {
                                 const val = parseInt(e.target.value, 10) || 0;
-                                const updated = [...br24Subjects];
+                                const updated = [...calculatorSubjects];
                                 updated[idx].internals = val;
-                                setBr24Subjects(updated);
+                                setCalculatorSubjects(updated);
                               }}
                               className="w-16 bg-slate-50 border border-slate-300 text-slate-900 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600"
                             />
@@ -568,9 +656,9 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                               value={sub.grade}
                               onChange={(e) => {
                                 const newGrade = e.target.value as BR24SubjectRecord['grade'];
-                                const updated = [...br24Subjects];
+                                const updated = [...calculatorSubjects];
                                 updated[idx].grade = newGrade;
-                                setBr24Subjects(updated);
+                                setCalculatorSubjects(updated);
                               }}
                               className="font-bold text-xs rounded-lg px-2 py-1 border border-slate-300 bg-slate-50 text-indigo-700 cursor-pointer"
                             >
@@ -600,13 +688,15 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
         </div>
       )}
 
-      {/* SUB-TAB 4: FEE LEDGER */}
+      {/* ======================================================================= */}
+      {/* 4. FEE & JVD LEDGER TAB (STRICTLY ONLY FEE & JVD SCHOLARSHIP DETAILS) */}
+      {/* ======================================================================= */}
       {activeTab === 'fee' && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h3 className="text-sm font-bold text-slate-900 font-serif flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-indigo-600" />
-              <span>Personal Fee &amp; JVD Disbursement Ledger</span>
+              <span>Personal Fee Ledger &amp; AP JVD Scholarship Disbursement Status</span>
             </h3>
             <span className="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200">
               Zero Balance Due

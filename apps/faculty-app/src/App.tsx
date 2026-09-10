@@ -7,7 +7,8 @@ import { FacultyHub } from '../../../src/components/faculty/FacultyHub';
 import { AttendanceModule } from '../../../src/components/attendance/AttendanceModule';
 import { CortexAIHub } from '../../../src/components/ai/CortexAIHub';
 import { 
-  Users, Fingerprint, LogOut, LayoutDashboard, Sparkles, ChevronRight, CheckCircle2, ShieldCheck 
+  Users, Fingerprint, LogOut, LayoutDashboard, Sparkles, ChevronRight, CheckCircle2, ShieldCheck,
+  BookOpen, FileText, Calendar
 } from 'lucide-react';
 
 export default function FacultyStandaloneApp() {
@@ -60,6 +61,8 @@ export default function FacultyStandaloneApp() {
                 {activeMenu === 'dashboard' && 'Faculty Dashboard & Workstation Home'}
                 {activeMenu === 'attendance' && 'Classroom Period 1-7 Roll-Call & Parent SMS Alerts'}
                 {activeMenu === 'timetable' && 'Master Class Schedule & Timetable (Periods 1-7)'}
+                {activeMenu === 'syllabus' && 'Syllabus Coverage & Unit Progress Tracker'}
+                {activeMenu === 'question_paper' && 'Bloom\'s Taxonomy AI Mid Question Paper Studio'}
                 {activeMenu === 'ai_tutor' && 'BIET Cortex Faculty AI Workstation'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -87,7 +90,7 @@ export default function FacultyStandaloneApp() {
                       Welcome, {authSession.name}!
                     </h2>
                     <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                      Staff &amp; Faculty Workstation for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, send parent SMS alerts, and manage master timetables.
+                      Staff &amp; Faculty Workstation for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, track syllabus coverage unit-by-unit, and generate AI mid examination papers.
                     </p>
                   </div>
 
@@ -109,7 +112,7 @@ export default function FacultyStandaloneApp() {
               <div className="space-y-3">
                 <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
                   <LayoutDashboard className="w-4 h-4 text-indigo-600" />
-                  <span>Faculty Workstations</span>
+                  <span>Faculty Workstation Modules</span>
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -147,7 +150,7 @@ export default function FacultyStandaloneApp() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors border border-emerald-100">
-                        <Fingerprint className="w-6 h-6" />
+                        <Calendar className="w-6 h-6" />
                       </div>
                       <span className="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-200">
                         Master Schedule
@@ -166,6 +169,60 @@ export default function FacultyStandaloneApp() {
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
+
+                  {/* Card 3: Syllabus Tracker */}
+                  <div
+                    onClick={() => setActiveMenu('syllabus')}
+                    className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors border border-blue-100">
+                        <BookOpen className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-full border border-blue-200">
+                        Units 1-5 Coverage
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-base group-hover:text-indigo-600 transition-colors">
+                        Syllabus Coverage &amp; Unit Progress Tracker
+                      </h4>
+                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                        Track unit-by-unit syllabus completion, covered topics, and syllabus readiness for Mid-1 / Mid-2.
+                      </p>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
+                      <span>Track Syllabus Progress</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Card 4: AI Mid Paper Studio */}
+                  <div
+                    onClick={() => setActiveMenu('question_paper')}
+                    className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-6 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors border border-purple-100">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] bg-amber-50 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-200">
+                        Bloom's Taxonomy
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-base group-hover:text-indigo-600 transition-colors">
+                        Bloom's Taxonomy AI Mid Paper Studio
+                      </h4>
+                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                        Generate AI-balanced Mid-1 and Mid-2 question papers conforming to Bloom's taxonomy &amp; NBA COs.
+                      </p>
+                    </div>
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
+                      <span>Open Mid Paper Studio</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -174,6 +231,8 @@ export default function FacultyStandaloneApp() {
           {/* Dynamic Component Content Rendering */}
           {activeMenu === 'attendance' && <FacultyHub selectedDept={authSession.department} initialTab="attendance" />}
           {activeMenu === 'timetable' && <FacultyHub selectedDept={authSession.department} initialTab="timetable" />}
+          {activeMenu === 'syllabus' && <FacultyHub selectedDept={authSession.department} initialTab="syllabus" />}
+          {activeMenu === 'question_paper' && <FacultyHub selectedDept={authSession.department} initialTab="paper" />}
           {activeMenu === 'ai_tutor' && <CortexAIHub />}
         </main>
       </div>

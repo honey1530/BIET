@@ -8,6 +8,8 @@ export type FacultyMenuId =
   | 'dashboard'
   | 'attendance'
   | 'timetable'
+  | 'syllabus'
+  | 'question_paper'
   | 'ai_tutor';
 
 interface FacultySidebarProps {
@@ -33,6 +35,8 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
     dashboard: true,
     academics: true,
     timetable: true,
+    syllabus: true,
+    question_paper: true,
     ai: true,
   });
 
@@ -63,6 +67,22 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
       icon: Calendar,
       items: [
         { id: 'timetable', label: 'Faculty Class Timetable', icon: Calendar },
+      ]
+    },
+    {
+      key: 'syllabus',
+      title: 'Syllabus Tracker',
+      icon: BookOpen,
+      items: [
+        { id: 'syllabus', label: 'Syllabus & Unit Coverage', icon: BookOpen },
+      ]
+    },
+    {
+      key: 'question_paper',
+      title: 'AI Exam Studio',
+      icon: FileText,
+      items: [
+        { id: 'question_paper', label: 'Bloom\'s Mid Paper Studio', icon: FileText },
       ]
     },
     {

@@ -4,12 +4,13 @@ import { Course, DepartmentCode } from '../../types';
 import { ClassTimetable } from '../attendance/DailyAttendanceTracker';
 import { 
   Users, FileCheck, Sparkles, CheckCircle2, XCircle, Clock, AlertTriangle, 
-  Send, Fingerprint, ShieldCheck, RefreshCw, Check, Smartphone, Calendar, FileText 
+  Send, Fingerprint, ShieldCheck, RefreshCw, Check, Smartphone, Calendar, FileText,
+  BookOpen, Layers, CheckSquare, Award, ArrowRight
 } from 'lucide-react';
 
 interface FacultyHubProps {
   selectedDept?: DepartmentCode | 'ALL';
-  initialTab?: 'attendance' | 'timetable';
+  initialTab?: 'attendance' | 'timetable' | 'syllabus' | 'paper';
 }
 
 export const FacultyHub: React.FC<FacultyHubProps> = ({ 
@@ -24,13 +25,13 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     filteredCourses.length > 0 ? filteredCourses[0].code : 'R203102'
   );
   const [selectedPeriod, setSelectedPeriod] = useState<number>(3);
-  const [activeTab, setActiveTab] = useState<'attendance' | 'timetable'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'attendance' | 'timetable' | 'syllabus' | 'paper'>(initialTab);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
-  // Roster Student Attendance List State (Present / Absent line-by-line roll call)
+  // Roster Student Attendance List State
   const [roster, setRoster] = useState<Array<{
     id: string;
     htno: string;
@@ -51,6 +52,19 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
   const [biometricVerified, setBiometricVerified] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Unit Coverage Progress State
+  const [unitStatuses, setUnitStatuses] = useState<Record<number, 'Completed' | 'In Progress' | 'Pending'>>({
+    1: 'Completed',
+    2: 'Completed',
+    3: 'Completed',
+    4: 'In Progress',
+    5: 'Pending'
+  });
+
+  // AI Mid Paper State
+  const [generatedPaper, setGeneratedPaper] = useState<any | null>(null);
+  const [isGeneratingPaper, setIsGeneratingPaper] = useState(false);
+
   const currentCourse: Course = filteredCourses.find(c => c.code === selectedCourseCode) || filteredCourses[0] || JNTUK_COURSES[0];
 
   const periodsList = [
@@ -63,7 +77,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     { no: 7, time: '04:00 PM - 04:45 PM' },
   ];
 
-  // Toggle Roll-Call Student Status Line-wisely
   const toggleStudentStatus = (id: string) => {
     setRoster(prev => prev.map(s => s.id === id ? {
       ...s,
@@ -71,7 +84,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     } : s));
   };
 
-  // Quick Mass Actions
   const setAllStatus = (status: 'PRESENT' | 'ABSENT') => {
     setRoster(prev => prev.map(s => ({ ...s, status })));
   };
@@ -79,7 +91,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
   const presentCount = roster.filter(s => s.status === 'PRESENT').length;
   const absentCount = roster.filter(s => s.status === 'ABSENT').length;
 
-  // Submit Period Attendance & Send Parent SMS Alerts
   const handleLockPeriodAttendance = () => {
     setIsSubmitting(true);
     setBiometricVerified(true);
@@ -95,16 +106,52 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     }, 400);
   };
 
+  const handleToggleUnitStatus = (unitIndex: number) => {
+    setUnitStatuses(prev => {
+      const current = prev[unitIndex] || 'Pending';
+      const next = current === 'Completed' ? 'In Progress' : current === 'In Progress' ? 'Pending' : 'Completed';
+      return { ...prev, [unitIndex]: next };
+    });
+  };
+
+  const handleGenerateExamPaper = async () => {
+    setIsGeneratingPaper(true);
+    setGeneratedPaper(null);
+
+    try {
+      const res = await fetch('/api/ai/exam-paper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseName: currentCourse.name,
+          courseCode: currentCourse.code,
+          regulation: currentCourse.regulation,
+          midType: 'Mid-1',
+          units: currentCourse.syllabusUnits.slice(0, 3)
+        })
+      });
+      const data = await res.json();
+      setGeneratedPaper(data);
+    } catch (err: any) {
+      alert(`Error generating exam paper: ${err.message || String(err)}`);
+    } finally {
+      setIsGeneratingPaper(false);
+    }
+  };
+
+  const completedUnitsCount = Object.values(unitStatuses).filter(s => s === 'Completed').length;
+  const syllabusProgressPercentage = Math.round((completedUnitsCount / (currentCourse.syllabusUnits.length || 5)) * 100);
+
   return (
     <div className="space-y-6 animate-fadeIn selection:bg-indigo-600 selection:text-white">
       {/* Top Banner (Executive White Theme) */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 font-serif">
-            BIET Faculty Workstation &amp; Classroom Attendance
+            BIET Faculty Workstation &amp; Academic Management
           </h2>
           <p className="text-xs text-slate-500 font-medium">
-            Sequential Period 1-7 Student Roll-Call, Biometric Stamp &amp; Instant Parent SMS Alerts
+            Classroom Period 1-7 Roll-Call, Master Schedule, Syllabus Tracker &amp; Bloom's AI Mid Paper Studio
           </p>
         </div>
 
@@ -126,11 +173,13 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
         </div>
       </div>
 
-      {/* Sub-Tab Switcher: Only Roll-Call and Master Schedule */}
+      {/* Sub-Tab Switcher: 4 Separate Tabs */}
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs">
         {[
           { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Alerts', icon: Fingerprint },
           { id: 'timetable', label: 'Master Class Timetable', icon: Calendar },
+          { id: 'syllabus', label: 'Syllabus & Unit Coverage Tracker', icon: BookOpen },
+          { id: 'paper', label: 'Bloom\'s Taxonomy AI Mid Paper Studio', icon: FileText },
         ].map(t => {
           const Icon = t.icon;
           const isActive = activeTab === t.id;
@@ -150,19 +199,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
           );
         })}
       </div>
-
-      {/* TAB 2: MASTER CLASS TIMETABLE */}
-      {activeTab === 'timetable' && (
-        <ClassTimetable
-          role="faculty"
-          department={selectedDept !== 'ALL' ? selectedDept : 'CSE'}
-          onNavigateToRollCall={(period, code) => {
-            setSelectedPeriod(period);
-            if (code) setSelectedCourseCode(code);
-            setActiveTab('attendance');
-          }}
-        />
-      )}
 
       {/* TAB 1: PERIOD 1-7 SEQUENTIAL ROLL-CALL & PARENT SMS ALERTS */}
       {activeTab === 'attendance' && (
@@ -301,9 +337,8 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
             </div>
           </div>
 
-          {/* SMS Alerts & Biometric Verification Console (4 Cols) */}
+          {/* SMS Alerts Console */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Biometric Verification Card */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
               <div className="flex items-center space-x-2 text-indigo-700">
                 <Fingerprint className="w-5 h-5" />
@@ -322,7 +357,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
               )}
             </div>
 
-            {/* SMS Parent Notification Console */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <div className="flex items-center space-x-2">
@@ -357,6 +391,244 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: MASTER CLASS TIMETABLE */}
+      {activeTab === 'timetable' && (
+        <ClassTimetable
+          role="faculty"
+          department={selectedDept !== 'ALL' ? selectedDept : 'CSE'}
+          onNavigateToRollCall={(period, code) => {
+            setSelectedPeriod(period);
+            if (code) setSelectedCourseCode(code);
+            setActiveTab('attendance');
+          }}
+        />
+      )}
+
+      {/* TAB 3: SYLLABUS COVERAGE & UNIT PROGRESS TRACKER */}
+      {activeTab === 'syllabus' && (
+        <div className="space-y-6">
+          {/* Syllabus Progress Overview Hero Box */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <div>
+                <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200 text-xs font-bold mb-2">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>BIET Autonomous Curriculum • Regulation {currentCourse.regulation}</span>
+                </div>
+                <h3 className="text-xl font-bold font-serif text-slate-900">
+                  {currentCourse.name} ({currentCourse.code}) — Syllabus Coverage Tracker
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Instructor: <strong className="text-slate-900">{currentCourse.facultyName}</strong> • Dept: {currentCourse.department} • Credits: {currentCourse.credits}
+                </p>
+              </div>
+
+              {/* Progress Dial */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center min-w-[200px]">
+                <span className="text-[10px] text-slate-500 uppercase font-bold block">Overall Syllabus Completion</span>
+                <div className="text-2xl font-bold text-indigo-600 mt-1">{syllabusProgressPercentage}%</div>
+                <span className="text-[11px] text-emerald-700 font-bold block mt-0.5">
+                  {completedUnitsCount} of {currentCourse.syllabusUnits.length} Units Completed
+                </span>
+              </div>
+            </div>
+
+            {/* Visual Progress Bar */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-slate-600">Total Course Syllabus Progress</span>
+                <span className="text-indigo-700">{syllabusProgressPercentage}% Completed</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                <div 
+                  className="bg-gradient-to-r from-indigo-600 to-emerald-500 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${syllabusProgressPercentage}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Unit-by-Unit Syllabus Coverage List */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <h4 className="text-base font-bold text-slate-900 font-serif flex items-center gap-2 border-b border-slate-200 pb-3">
+              <Layers className="w-5 h-5 text-indigo-600" />
+              <span>Unit-by-Unit Syllabus &amp; Topic Breakdown</span>
+            </h4>
+
+            <div className="space-y-3">
+              {currentCourse.syllabusUnits.map((unitName, idx) => {
+                const uNum = idx + 1;
+                const status = unitStatuses[uNum] || 'Pending';
+
+                return (
+                  <div 
+                    key={idx}
+                    className={`p-4 rounded-xl border transition-all ${
+                      status === 'Completed'
+                        ? 'bg-emerald-50/40 border-emerald-200'
+                        : status === 'In Progress'
+                        ? 'bg-amber-50/40 border-amber-200'
+                        : 'bg-slate-50 border-slate-200'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start space-x-3">
+                        <span className={`w-8 h-8 rounded-xl font-bold text-xs flex items-center justify-center border shadow-xs flex-shrink-0 ${
+                          status === 'Completed'
+                            ? 'bg-emerald-600 text-white border-emerald-700'
+                            : status === 'In Progress'
+                            ? 'bg-amber-500 text-white border-amber-600'
+                            : 'bg-slate-200 text-slate-700 border-slate-300'
+                        }`}>
+                          U{uNum}
+                        </span>
+
+                        <div>
+                          <h5 className="font-bold text-sm text-slate-900">Unit {uNum}: {unitName}</h5>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {status === 'Completed' && '✓ All topics taught and verified in lecture sessions.'}
+                            {status === 'In Progress' && '⏳ Active teaching in progress. 60% topics covered.'}
+                            {status === 'Pending' && '📅 Scheduled for upcoming lecture sessions.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                          status === 'Completed'
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                            : status === 'In Progress'
+                            ? 'bg-amber-100 text-amber-800 border-amber-200'
+                            : 'bg-slate-100 text-slate-600 border-slate-200'
+                        }`}>
+                          {status}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleUnitStatus(uNum)}
+                          className="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs transition-all shadow-xs"
+                        >
+                          Change Status
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: BLOOM'S TAXONOMY AI MID PAPER STUDIO */}
+      {activeTab === 'paper' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Active Course Card */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex justify-between items-start">
+              <span className="bg-indigo-600 text-white font-mono font-bold text-xs px-2.5 py-0.5 rounded shadow-xs">
+                {currentCourse.code}
+              </span>
+              <span className="text-xs text-indigo-700 font-bold">{currentCourse.regulation} CBCS</span>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold font-serif text-slate-900">{currentCourse.name}</h3>
+              <p className="text-xs text-slate-500 mt-1">Instructor: {currentCourse.facultyName}</p>
+            </div>
+
+            <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Department:</span>
+                <span className="font-bold text-slate-900">{currentCourse.department}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Enrolled Students:</span>
+                <span className="font-bold text-emerald-700">{currentCourse.enrolledStudents} Students</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Credits:</span>
+                <span className="font-bold text-indigo-700">{currentCourse.credits} Credits</span>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Mid-Paper Generator */}
+          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-200">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 font-serif">
+                    Bloom's Taxonomy AI Question Paper Generator
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Generates Mid-1 / Mid-2 exam papers matching NBA Course Outcomes (CO1-CO5)
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGenerateExamPaper}
+                disabled={isGeneratingPaper}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition-all shadow-xs disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${isGeneratingPaper ? 'animate-spin' : ''}`} />
+                <span>{isGeneratingPaper ? 'Generating Paper...' : 'Generate Mid Paper'}</span>
+              </button>
+            </div>
+
+            {generatedPaper ? (
+              <div className="p-5 bg-slate-50 text-slate-900 rounded-xl space-y-4 font-sans text-xs border border-slate-200 shadow-xs">
+                <div className="text-center border-b border-slate-200 pb-3 space-y-1">
+                  <h4 className="font-serif font-bold text-slate-900 text-sm">
+                    BHIMAVARAM INSTITUTE OF ENGINEERING &amp; TECHNOLOGY (BIET)
+                  </h4>
+                  <p className="text-indigo-700 font-bold">
+                    {generatedPaper.midType} EXAMINATIONS — {generatedPaper.regulation} REGULATION
+                  </p>
+                  <div className="flex justify-between text-[11px] text-slate-600 font-mono pt-1 font-bold">
+                    <span>Subject: {generatedPaper.courseName} ({generatedPaper.courseCode})</span>
+                    <span>Max Marks: {generatedPaper.maxMarks} | Time: {generatedPaper.durationMinutes} Mins</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  {generatedPaper.questions?.map((q: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5 shadow-xs">
+                      <div className="flex justify-between text-[10px] text-indigo-700 font-bold">
+                        <span>Q{idx + 1}. [Unit {q.unit}] — {q.bloomLevel?.toUpperCase()} LEVEL</span>
+                        <span>{q.marks} Marks • {q.coMapping}</span>
+                      </div>
+                      <p className="text-slate-900 text-xs font-serif leading-relaxed">
+                        {q.questionText}
+                      </p>
+                      {q.orQuestionText && (
+                        <p className="text-slate-600 text-xs font-serif pt-1 border-t border-slate-200">
+                          <strong className="text-indigo-700 font-sans">OR</strong> {q.orQuestionText}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-8 border-2 border-dashed border-slate-200 rounded-xl text-center space-y-2">
+                <FileCheck className="w-8 h-8 text-indigo-600 mx-auto" />
+                <h4 className="font-bold text-slate-900 text-sm">No Question Paper Generated Yet</h4>
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  Click "Generate Mid Paper" to invoke BIET Cortex AI engine to craft a balanced mid-examination question paper conforming to Bloom's taxonomy.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

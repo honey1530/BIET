@@ -51,17 +51,18 @@ export default function StudentStandaloneApp() {
         {/* Right Main Workspace Content Pane */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 space-y-6">
           {/* Menu Title Breadcrumb Bar */}
-          <div className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-xs">
             <div>
               <h2 className="text-base font-bold text-slate-900 font-serif">
                 {activeMenu === 'student_details' && 'Student Details & Bio-Data'}
-                {activeMenu === 'student_admission' && 'Academic Performance & Marks Ledger'}
+                {activeMenu === 'student_admission' && 'Academic Performance & Grade Sheet'}
+                {activeMenu === 'sgpa_calculator' && 'SGPA, CGPA & Percentage Calculator (Subject-Wise & Cleared Backlogs Tracker)'}
                 {activeMenu === 'fee_status' && 'Personal Fee Ledger & AP JVD Scholarship Status'}
                 {activeMenu === 'attendance_log' && 'Daily 7-Periods Biometric Attendance Log'}
                 {activeMenu === 'ai_tutor' && 'BIET Cortex Student AI Academic Tutor'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Current Session: 2026-27 • UGC Autonomous Institution • JNTUK Kakinada Affiliated Engine
+                Current Session: 2026-27 • UGC Autonomous Institution (BIET R23/R20)
               </p>
             </div>
 
@@ -86,6 +87,15 @@ export default function StudentStandaloneApp() {
               studentName={authSession.name}
               department={authSession.department}
               initialSubTab="marks"
+            />
+          )}
+
+          {activeMenu === 'sgpa_calculator' && (
+            <StudentSelfProfileView
+              studentHtno={authSession.username}
+              studentName={authSession.name}
+              department={authSession.department}
+              initialSubTab="calculator"
             />
           )}
 

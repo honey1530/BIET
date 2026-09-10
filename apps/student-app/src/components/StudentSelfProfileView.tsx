@@ -3,14 +3,27 @@ import { SAMPLE_STUDENTS, JNTUK_COURSES } from '../../../../src/data/bietData';
 import { getStudentProfileByHtno } from '../../../../src/data/db';
 import { StudentProfile } from '../../../../src/types';
 import { 
-  User, GraduationCap, Award, Percent, CreditCard, CheckCircle2, ShieldCheck, Calculator, RefreshCw, Sparkles 
+  User, GraduationCap, Award, Percent, CreditCard, CheckCircle2, ShieldCheck, 
+  Calculator, RefreshCw, Sparkles, AlertTriangle, BookOpen, CheckCircle, Plus, Trash2 
 } from 'lucide-react';
 
 interface StudentSelfProfileViewProps {
   studentHtno: string;
   studentName?: string;
   department?: string;
-  initialSubTab?: 'biodata' | 'marks' | 'fee';
+  initialSubTab?: 'biodata' | 'marks' | 'calculator' | 'fee';
+}
+
+interface SubjectRecord {
+  id: string;
+  code: string;
+  name: string;
+  sem: string;
+  credits: number;
+  grade: 'O' | 'A+' | 'A' | 'B+' | 'B' | 'C' | 'F';
+  isBacklog: boolean;
+  isCleared: boolean;
+  clearedGrade?: 'O' | 'A+' | 'A' | 'B+' | 'B' | 'C';
 }
 
 export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
@@ -20,16 +33,14 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
   initialSubTab = 'biodata'
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'biodata' | 'marks' | 'fee'>(initialSubTab);
+  const [activeTab, setActiveTab] = useState<'biodata' | 'marks' | 'calculator' | 'fee'>(initialSubTab);
 
-  // Sync activeTab when initialSubTab changes from parent navigation
   useEffect(() => {
     if (initialSubTab) {
       setActiveTab(initialSubTab);
     }
   }, [initialSubTab]);
 
-  // Dynamically resolve student profile from database or SAMPLE_STUDENTS
   const resolvedStudent: StudentProfile = getStudentProfileByHtno(studentHtno);
   const student: StudentProfile = {
     ...resolvedStudent,
@@ -37,24 +48,72 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
     department: (department as any) || resolvedStudent.department
   };
 
-  // SGPA / CGPA / Percentage Calculator State
-  const [semesters, setSemesters] = useState<{ sem: string; gpa: number; credits: number }[]>([
-    { sem: '1-1', gpa: 8.5, credits: 20 },
-    { sem: '1-2', gpa: 8.8, credits: 20 },
-    { sem: '2-1', gpa: 8.9, credits: 21 },
-    { sem: '2-2', gpa: 8.7, credits: 21 },
-    { sem: '3-1', gpa: student.cgpa || 8.84, credits: 22 },
+  // Grade Points Scale (BIET Autonomous Regulation)
+  const GRADE_POINTS: Record<string, number> = {
+    'O': 10,
+    'A+': 9,
+    'A': 8,
+    'B+': 7,
+    'B': 6,
+    'C': 5,
+    'F': 0
+  };
+
+  // Detailed Subject-Wise Academic Roster with Backlog & Cleared Backlog Tracker
+  const [subjects, setSubjects] = useState<SubjectRecord[]>([
+    { id: '1', code: 'MA101', name: 'Linear Algebra & Calculus', sem: '1-1', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+    { id: '2', code: 'PH101', name: 'Engineering Physics', sem: '1-1', credits: 3.0, grade: 'A', isBacklog: false, isCleared: false },
+    { id: '3', code: 'CS101', name: 'Programming for Problem Solving (C)', sem: '1-1', credits: 3.0, grade: 'O', isBacklog: false, isCleared: false },
+    { id: '4', code: 'EE101', name: 'Basic Electrical Engineering', sem: '1-1', credits: 3.0, grade: 'F', isBacklog: true, isCleared: true, clearedGrade: 'B+' },
+    
+    { id: '5', code: 'MA102', name: 'Differential Equations & Vector Calculus', sem: '1-2', credits: 3.0, grade: 'A', isBacklog: false, isCleared: false },
+    { id: '6', code: 'CH101', name: 'Engineering Chemistry', sem: '1-2', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+    { id: '7', code: 'CS102', name: 'Data Structures using C++', sem: '1-2', credits: 3.0, grade: 'A', isBacklog: false, isCleared: false },
+    
+    { id: '8', code: 'CS201', name: 'Discrete Mathematical Structures', sem: '2-1', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+    { id: '9', code: 'CS202', name: 'Java Object Oriented Programming', sem: '2-1', credits: 3.0, grade: 'O', isBacklog: false, isCleared: false },
+    { id: '10', code: 'CS203', name: 'Database Management Systems', sem: '2-1', credits: 3.0, grade: 'A', isBacklog: false, isCleared: false },
+    { id: '11', code: 'CS204', name: 'Digital Logic & Computer Organization', sem: '2-1', credits: 3.0, grade: 'F', isBacklog: true, isCleared: false },
+    
+    { id: '12', code: 'CS205', name: 'Operating Systems', sem: '2-2', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+    { id: '13', code: 'CS206', name: 'Design and Analysis of Algorithms', sem: '2-2', credits: 3.0, grade: 'A', isBacklog: false, isCleared: false },
+    { id: '14', code: 'CS207', name: 'Software Engineering', sem: '2-2', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+
+    { id: '15', code: 'CS301', name: 'Computer Networks', sem: '3-1', credits: 3.0, grade: 'O', isBacklog: false, isCleared: false },
+    { id: '16', code: 'CS302', name: 'Web Technologies & Frameworks', sem: '3-1', credits: 3.0, grade: 'A+', isBacklog: false, isCleared: false },
+    { id: '17', code: 'CS303', name: 'Artificial Intelligence & Machine Learning', sem: '3-1', credits: 3.0, grade: 'O', isBacklog: false, isCleared: false },
   ]);
 
-  const [calcFormula, setCalcFormula] = useState<'jntuk_r20' | 'standard'>('jntuk_r20');
+  const [selectedSemFilter, setSelectedSemFilter] = useState<string>('ALL');
+  const [calcFormula, setCalcFormula] = useState<'biet_r23' | 'standard'>('biet_r23');
 
-  // Calculate Weighted CGPA
-  const totalCredits = semesters.reduce((sum, s) => sum + s.credits, 0);
-  const totalWeightedGpa = semesters.reduce((sum, s) => sum + (s.gpa * s.credits), 0);
-  const calculatedCgpa = totalCredits > 0 ? (totalWeightedGpa / totalCredits) : student.cgpa;
+  // Dynamically calculate SGPA / CGPA / Backlogs from Subject Roster
+  let totalRegisteredCredits = 0;
+  let totalEarnedCredits = 0;
+  let totalGradePoints = 0;
+  let activeBacklogsCount = 0;
+  let clearedBacklogsCount = 0;
 
-  // Percentage Formulas: JNTUK R20: (CGPA - 0.75) * 10 | Standard: CGPA * 9.5
-  const calculatedPercentage = calcFormula === 'jntuk_r20'
+  subjects.forEach(s => {
+    totalRegisteredCredits += s.credits;
+    const effectiveGrade = (s.isBacklog && s.isCleared && s.clearedGrade) ? s.clearedGrade : s.grade;
+    const points = GRADE_POINTS[effectiveGrade] || 0;
+
+    if (effectiveGrade === 'F') {
+      activeBacklogsCount++;
+    } else {
+      totalEarnedCredits += s.credits;
+      totalGradePoints += (points * s.credits);
+      if (s.isBacklog && s.isCleared) {
+        clearedBacklogsCount++;
+      }
+    }
+  });
+
+  const calculatedCgpa = totalEarnedCredits > 0 ? (totalGradePoints / totalEarnedCredits) : 0;
+  
+  // BIET Autonomous Percentage Formula: (CGPA - 0.75) * 10
+  const calculatedPercentage = calcFormula === 'biet_r23'
     ? Math.max(0, (calculatedCgpa - 0.75) * 10)
     : (calculatedCgpa * 9.5);
 
@@ -67,7 +126,43 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
   const currentDivision = getDivision(calculatedCgpa);
 
-  // Simulate ultra-fast skeleton load for Linear UX
+  // Subject Grade Handlers
+  const handleUpdateGrade = (id: string, newGrade: SubjectRecord['grade']) => {
+    setSubjects(prev => prev.map(s => {
+      if (s.id === id) {
+        const isBacklog = newGrade === 'F';
+        return {
+          ...s,
+          grade: newGrade,
+          isBacklog,
+          isCleared: isBacklog ? false : s.isCleared
+        };
+      }
+      return s;
+    }));
+  };
+
+  const handleToggleCleared = (id: string, isCleared: boolean) => {
+    setSubjects(prev => prev.map(s => {
+      if (s.id === id) {
+        return {
+          ...s,
+          isCleared,
+          clearedGrade: isCleared ? (s.clearedGrade || 'B+') : undefined
+        };
+      }
+      return s;
+    }));
+  };
+
+  const handleUpdateClearedGrade = (id: string, clearedGrade: SubjectRecord['clearedGrade']) => {
+    setSubjects(prev => prev.map(s => s.id === id ? { ...s, clearedGrade } : s));
+  };
+
+  const filteredSubjectList = selectedSemFilter === 'ALL'
+    ? subjects
+    : subjects.filter(s => s.sem === selectedSemFilter);
+
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 180);
@@ -76,13 +171,12 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-pulse" aria-label="Loading student profile">
+      <div className="space-y-6 animate-pulse">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 h-40 flex items-center space-x-4 shadow-sm">
           <div className="w-16 h-16 bg-slate-200 rounded-2xl" />
           <div className="space-y-2 flex-1">
             <div className="h-5 bg-slate-200 rounded w-1/3" />
             <div className="h-4 bg-slate-200/80 rounded w-1/4" />
-            <div className="h-3 bg-slate-200/50 rounded w-1/2" />
           </div>
         </div>
       </div>
@@ -91,30 +185,28 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
   return (
     <div className="space-y-6 animate-fadeIn selection:bg-indigo-600 selection:text-white">
-      {/* Upper Hero Box - ONLY shown for student details */}
+      {/* Upper Hero Box */}
       {activeTab === 'biodata' && (
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-md relative overflow-hidden text-white">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden text-slate-900">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-start md:items-center space-x-4">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-2xl md:text-3xl flex items-center justify-center shadow-lg border border-indigo-400/30">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-indigo-600 text-white font-black text-2xl md:text-3xl flex items-center justify-center shadow-xs">
                 {student.name.charAt(0)}
               </div>
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
-                  <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-indigo-500/30 uppercase tracking-wider">
-                    UGC AUTONOMOUS • {student.regulation}
+                  <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-indigo-200 uppercase tracking-wider">
+                    UGC AUTONOMOUS • BIET R23/R20 REGULATION
                   </span>
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3" /> VERIFIED SIS
                   </span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold font-serif text-white">{student.name}</h2>
-                <p className="text-xs text-amber-300 font-mono font-bold">
-                  JNTUK HTNO: {student.htno} • {student.department} Branch ({student.yearSection})
+                <h2 className="text-2xl md:text-3xl font-bold font-serif text-slate-900">{student.name}</h2>
+                <p className="text-xs text-indigo-700 font-mono font-bold">
+                  HTNO: {student.htno} • {student.department} Branch ({student.yearSection})
                 </p>
-                <p className="text-xs text-slate-300 pt-1 font-medium">
+                <p className="text-xs text-slate-600 pt-1 font-medium">
                   Personal bio-data, guardian details, and official academic records.
                 </p>
               </div>
@@ -150,7 +242,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
             <span className="text-2xl font-bold text-slate-900">{student.attendancePercentage}%</span>
             <span className="text-xs text-emerald-700 font-bold">&gt; 75% Safe</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">Hall Ticket Eligible</p>
+          <p className="text-[11px] text-slate-500 mt-1">Exam Hall Ticket Eligible</p>
         </div>
 
         <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
@@ -168,23 +260,30 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
         <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span className="uppercase font-extrabold tracking-wider text-[10px]">Active Backlogs</span>
+            <span className="uppercase font-extrabold tracking-wider text-[10px]">Backlog Status</span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <Award className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <span className="text-2xl font-bold text-slate-900">{student.backlogs}</span>
+          <div className="mt-2 flex items-baseline space-x-2">
+            <span className="text-2xl font-bold text-slate-900">{activeBacklogsCount}</span>
+            <span className="text-xs text-slate-500 font-semibold">Active</span>
+            {clearedBacklogsCount > 0 && (
+              <span className="text-xs text-emerald-700 font-bold">({clearedBacklogsCount} Cleared)</span>
+            )}
           </div>
-          <p className="text-[11px] text-emerald-700 font-bold mt-1">Clean Academic Record</p>
+          <p className="text-[11px] text-emerald-700 font-bold mt-1">
+            {activeBacklogsCount === 0 ? 'Clean Academic Record' : `${activeBacklogsCount} Supply Exam Pending`}
+          </p>
         </div>
       </div>
 
-      {/* Sub-Tab Switcher */}
+      {/* Main Sub-Tab Navigation Bar with Standalone Calculator Title */}
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs">
         {[
           { id: 'biodata', label: 'Student Bio-Data', icon: User },
-          { id: 'marks', label: 'Academic Marks & CGPA Calculator', icon: GraduationCap },
+          { id: 'marks', label: 'Academic Marks & Grade Sheet', icon: GraduationCap },
+          { id: 'calculator', label: 'SGPA, CGPA & Percentage Calculator', icon: Calculator },
           { id: 'fee', label: 'Fee & JVD Ledger', icon: CreditCard },
         ].map(t => {
           const Icon = t.icon;
@@ -206,7 +305,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
         })}
       </div>
 
-      {/* Option 1: Personal Bio-Data */}
+      {/* SUB-TAB 1: PERSONAL BIO-DATA */}
       {activeTab === 'biodata' && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
           <h3 className="text-sm font-bold text-slate-900 font-serif border-b border-slate-200 pb-3 flex items-center gap-2">
@@ -221,7 +320,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
             </div>
 
             <div className="space-y-1">
-              <span className="text-slate-500 font-semibold block text-[11px]">JNTUK Hall Ticket No</span>
+              <span className="text-slate-500 font-semibold block text-[11px]">Hall Ticket No</span>
               <span className="font-bold text-indigo-700 font-mono text-sm block">{student.htno}</span>
             </div>
 
@@ -252,7 +351,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
 
             <div className="space-y-1">
               <span className="text-slate-500 font-semibold block text-[11px]">College Status</span>
-              <span className="font-bold text-indigo-700 text-sm block">UGC Autonomous Institution</span>
+              <span className="font-bold text-indigo-700 text-sm block">UGC Autonomous Institution (BIET)</span>
             </div>
 
             <div className="space-y-1">
@@ -263,19 +362,53 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
         </div>
       )}
 
-      {/* Option 2: Academic Marks & Interactive CGPA / SGPA / Percentage Calculator */}
+      {/* SUB-TAB 2: ACADEMIC MARKS & ENROLLED COURSES */}
       {activeTab === 'marks' && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 font-serif flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-indigo-600" />
+              <span>BIET Autonomous Semester Courses &amp; Internal Marks Breakdown</span>
+            </h3>
+            <span className="text-xs text-indigo-700 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+              CGPA: {calculatedCgpa.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {JNTUK_COURSES.map((course) => (
+              <div key={course.code} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="bg-indigo-600 text-white font-mono font-bold text-[10px] px-2 py-0.5 rounded">
+                    {course.code}
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-semibold">{course.credits} Credits</span>
+                </div>
+                <h4 className="font-bold text-slate-900 text-sm leading-snug">{course.name}</h4>
+                <p className="text-xs text-slate-600">Faculty: <strong className="text-slate-900">{course.facultyName}</strong></p>
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 font-medium">Internal Mid-1:</span>
+                  <span className="font-bold text-emerald-700">28 / 30</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB 3: STANDALONE SGPA, CGPA & PERCENTAGE CALCULATOR (SUBJECT-WISE & CLEARED BACKLOGS TRACKER) */}
+      {activeTab === 'calculator' && (
         <div className="space-y-6">
-          {/* INTERACTIVE CGPA / SGPA / PERCENTAGE CALCULATOR WIDGET */}
+          {/* Header Banner & Summary */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-indigo-600" />
-                  <span>JNTUK SGPA, CGPA &amp; Percentage Calculator</span>
+                  <span>BIET Autonomous SGPA, CGPA &amp; Percentage Calculator</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Calculate semester SGPA, overall CGPA, and equivalent percentage for JNTUK R20/R23 regulations
+                  Subject-wise grade calculation with real-time backlog clearing tracker (BIET Autonomous R23/R20)
                 </p>
               </div>
 
@@ -286,132 +419,168 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                   onChange={(e) => setCalcFormula(e.target.value as any)}
                   className="bg-slate-50 border border-slate-200 text-indigo-700 font-bold text-xs rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
                 >
-                  <option value="jntuk_r20">JNTUK R20 [(CGPA - 0.75) × 10]</option>
+                  <option value="biet_r23">BIET Autonomous [(CGPA - 0.75) × 10]</option>
                   <option value="standard">Standard [(CGPA × 9.5)]</option>
                 </select>
               </div>
             </div>
 
             {/* Calculated Output Banner */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center space-y-1">
                 <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Overall CGPA</span>
                 <div className="text-3xl font-black text-slate-900">{calculatedCgpa.toFixed(2)} <span className="text-xs font-normal text-slate-500">/ 10</span></div>
-                <span className="text-[11px] font-bold text-indigo-700">Total Credits: {totalCredits}</span>
+                <span className="text-[11px] font-bold text-indigo-700">Credits Earned: {totalEarnedCredits} / {totalRegisteredCredits}</span>
               </div>
 
               <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-center space-y-1">
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Equivalent Percentage</span>
                 <div className="text-3xl font-black text-emerald-700">{calculatedPercentage.toFixed(2)}%</div>
                 <span className="text-[11px] font-bold text-emerald-800">
-                  {calcFormula === 'jntuk_r20' ? 'Formula: (CGPA - 0.75) × 10' : 'Formula: CGPA × 9.5'}
+                  {calcFormula === 'biet_r23' ? 'Formula: (CGPA - 0.75) × 10' : 'Formula: CGPA × 9.5'}
+                </span>
+              </div>
+
+              <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl text-center space-y-1">
+                <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Backlog Tracker</span>
+                <div className="text-2xl font-black text-purple-900">
+                  {activeBacklogsCount} Active
+                </div>
+                <span className="text-[11px] font-bold text-emerald-700 block">
+                  {clearedBacklogsCount} Backlogs Cleared in Supply
                 </span>
               </div>
 
               <div className={`p-4 rounded-xl text-center space-y-1 border ${currentDivision.bg}`}>
-                <span className="text-xs font-bold uppercase tracking-wider">Academic Class</span>
-                <div className="text-lg font-black">{currentDivision.title}</div>
-                <span className="text-[11px] font-semibold">Official Degree Classification</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Degree Division</span>
+                <div className="text-base font-black">{currentDivision.title}</div>
+                <span className="text-[11px] font-semibold">Official Autonomous Status</span>
               </div>
             </div>
 
-            {/* Semester Inputs Grid */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Semester-wise SGPA Breakdown</h4>
-                <button
-                  type="button"
-                  onClick={() => setSemesters([
-                    { sem: '1-1', gpa: 8.5, credits: 20 },
-                    { sem: '1-2', gpa: 8.8, credits: 20 },
-                    { sem: '2-1', gpa: 8.9, credits: 21 },
-                    { sem: '2-2', gpa: 8.7, credits: 21 },
-                    { sem: '3-1', gpa: student.cgpa || 8.84, credits: 22 },
-                  ])}
-                  className="text-xs text-indigo-600 hover:underline font-bold flex items-center gap-1"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Reset Default Values
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
-                {semesters.map((s, idx) => (
-                  <div key={s.sem} className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
-                    <span className="text-xs font-bold text-slate-900 block">Semester {s.sem}</span>
-                    <div>
-                      <label className="text-[10px] text-slate-500 font-semibold block">SGPA (0 - 10)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="10"
-                        value={s.gpa}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          const updated = [...semesters];
-                          updated[idx].gpa = Math.min(10, Math.max(0, val));
-                          setSemesters(updated);
-                        }}
-                        className="w-full bg-white border border-slate-300 text-slate-900 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 font-semibold block">Credits</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="30"
-                        value={s.credits}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value, 10) || 0;
-                          const updated = [...semesters];
-                          updated[idx].credits = val;
-                          setSemesters(updated);
-                        }}
-                        className="w-full bg-white border border-slate-300 text-slate-900 text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600"
-                      />
-                    </div>
-                  </div>
+            {/* Semester Filter Tabs */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Filter Subject Grade Sheet:</span>
+              <div className="flex items-center space-x-1.5 overflow-x-auto">
+                {['ALL', '1-1', '1-2', '2-1', '2-2', '3-1'].map(sem => (
+                  <button
+                    key={sem}
+                    type="button"
+                    onClick={() => setSelectedSemFilter(sem)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      selectedSemFilter === sem
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {sem === 'ALL' ? 'All Semesters' : `Sem ${sem}`}
+                  </button>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Enrolled Courses Breakdown Table */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 font-serif flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-indigo-600" />
-                <span>Enrolled JNTUK R20 Semester Courses &amp; Marks Breakdown</span>
-              </h3>
-              <span className="text-xs text-indigo-700 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
-                SGPA: {calculatedCgpa.toFixed(2)}
-              </span>
-            </div>
+            {/* Subject-Wise Grade & Cleared Backlog Table */}
+            <div className="space-y-3">
+              <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="py-3 px-4">Sem</th>
+                      <th className="py-3 px-4">Subject Code &amp; Name</th>
+                      <th className="py-3 px-4">Credits</th>
+                      <th className="py-3 px-4">Original Grade</th>
+                      <th className="py-3 px-4">Backlog Status</th>
+                      <th className="py-3 px-4">Cleared Grade (Supply)</th>
+                      <th className="py-3 px-4 text-right">Grade Points</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white">
+                    {filteredSubjectList.map((sub) => {
+                      const effectiveGrade = (sub.isBacklog && sub.isCleared && sub.clearedGrade) ? sub.clearedGrade : sub.grade;
+                      const points = GRADE_POINTS[effectiveGrade] || 0;
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {JNTUK_COURSES.map((course) => (
-                <div key={course.code} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="bg-indigo-600 text-white font-mono font-bold text-[10px] px-2 py-0.5 rounded">
-                      {course.code}
-                    </span>
-                    <span className="text-[11px] text-slate-500 font-semibold">{course.credits} Credits</span>
-                  </div>
-                  <h4 className="font-bold text-slate-900 text-sm leading-snug">{course.name}</h4>
-                  <p className="text-xs text-slate-600">Faculty: <strong className="text-slate-900">{course.facultyName}</strong></p>
-                  <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium">Internal Mid-1:</span>
-                    <span className="font-bold text-emerald-700">28 / 30</span>
-                  </div>
-                </div>
-              ))}
+                      return (
+                        <tr key={sub.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="py-3 px-4 font-bold text-indigo-700 font-mono">{sub.sem}</td>
+                          <td className="py-3 px-4">
+                            <span className="font-mono text-indigo-600 font-bold mr-2">[{sub.code}]</span>
+                            <span className="font-bold text-slate-900">{sub.name}</span>
+                          </td>
+                          <td className="py-3 px-4 font-bold text-slate-700">{sub.credits}</td>
+
+                          {/* Grade Selector */}
+                          <td className="py-3 px-4">
+                            <select
+                              value={sub.grade}
+                              onChange={(e) => handleUpdateGrade(sub.id, e.target.value as any)}
+                              className={`font-bold text-xs rounded-lg px-2 py-1 border cursor-pointer ${
+                                sub.grade === 'F' ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-slate-50 text-slate-900 border-slate-200'
+                              }`}
+                            >
+                              <option value="O">O (10 Points)</option>
+                              <option value="A+">A+ (9 Points)</option>
+                              <option value="A">A (8 Points)</option>
+                              <option value="B+">B+ (7 Points)</option>
+                              <option value="B">B (6 Points)</option>
+                              <option value="C">C (5 Points)</option>
+                              <option value="F">F (Fail / Backlog)</option>
+                            </select>
+                          </td>
+
+                          {/* Backlog & Cleared Status */}
+                          <td className="py-3 px-4">
+                            {sub.grade === 'F' || sub.isBacklog ? (
+                              <label className="flex items-center space-x-1.5 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={sub.isCleared}
+                                  onChange={(e) => handleToggleCleared(sub.id, e.target.checked)}
+                                  className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer"
+                                />
+                                <span className={`text-[11px] font-bold ${sub.isCleared ? 'text-emerald-700' : 'text-rose-600'}`}>
+                                  {sub.isCleared ? '✓ Cleared in Supply' : '⚠️ Active Backlog'}
+                                </span>
+                              </label>
+                            ) : (
+                              <span className="text-[11px] text-slate-400 font-medium">Regular Pass</span>
+                            )}
+                          </td>
+
+                          {/* Cleared Grade Dropdown (Shown only if Cleared) */}
+                          <td className="py-3 px-4">
+                            {sub.isBacklog && sub.isCleared ? (
+                              <select
+                                value={sub.clearedGrade || 'B+'}
+                                onChange={(e) => handleUpdateClearedGrade(sub.id, e.target.value as any)}
+                                className="bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold text-xs rounded-lg px-2 py-1 cursor-pointer"
+                              >
+                                <option value="O">O (10 Pts)</option>
+                                <option value="A+">A+ (9 Pts)</option>
+                                <option value="A">A (8 Pts)</option>
+                                <option value="B+">B+ (7 Pts)</option>
+                                <option value="B">B (6 Pts)</option>
+                                <option value="C">C (5 Pts)</option>
+                              </select>
+                            ) : (
+                              <span className="text-slate-400 text-[11px]">—</span>
+                            )}
+                          </td>
+
+                          <td className="py-3 px-4 text-right font-black text-slate-900 text-sm">
+                            {points * sub.credits} <span className="text-[10px] text-slate-500 font-normal">pts</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Option 3: Fee Ledger */}
+      {/* SUB-TAB 4: FEE LEDGER */}
       {activeTab === 'fee' && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">

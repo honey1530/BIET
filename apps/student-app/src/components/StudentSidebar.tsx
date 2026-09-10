@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { 
   GraduationCap, Clock, Bot, ChevronDown, ChevronRight, User, FileText, 
-  CreditCard, Percent, Sparkles, LogOut 
+  CreditCard, Percent, Sparkles, LogOut, Calculator 
 } from 'lucide-react';
 
 export type StudentMenuId =
   | 'student_details'
   | 'student_admission'
+  | 'sgpa_calculator'
   | 'fee_status'
   | 'attendance_log'
   | 'ai_tutor';
@@ -30,7 +31,6 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
   isOpen,
   onLogout
 }) => {
-  // Expandable Category States
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     info: true,
     attendance: true,
@@ -47,8 +47,9 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
       title: 'Student Information',
       icon: GraduationCap,
       items: [
-        { id: 'student_details', label: 'student deails', icon: User },
-        { id: 'student_admission', label: 'Academic and marks', icon: FileText },
+        { id: 'student_details', label: 'Student Bio-Data', icon: User },
+        { id: 'student_admission', label: 'Academic Marks & Grades', icon: FileText },
+        { id: 'sgpa_calculator', label: 'SGPA, CGPA & Percentage Calculator', icon: Calculator },
         { id: 'fee_status', label: 'Fee & JVD Scholarship', icon: CreditCard },
       ]
     },
@@ -103,37 +104,32 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
             <div key={sec.key} className="space-y-1">
               <button
                 onClick={() => toggleCategory(sec.key)}
-                className="w-full flex items-center justify-between p-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-wider rounded-lg hover:bg-slate-100/70"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hover:text-slate-700 transition-colors"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1.5">
                   <SectionIcon className="w-3.5 h-3.5 text-indigo-600" />
                   <span>{sec.title}</span>
                 </div>
-                {isCategoryOpen ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                )}
+                {isCategoryOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
               </button>
 
               {isCategoryOpen && (
-                <div className="space-y-1 pl-2 animate-fadeIn">
+                <div className="space-y-0.5 pt-0.5">
                   {sec.items.map((item) => {
                     const ItemIcon = item.icon;
-                    const isActive = activeMenu === item.id;
-
+                    const isSelected = activeMenu === item.id;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => onSelectMenu(item.id as StudentMenuId)}
+                        onClick={() => onSelectMenu(item.id as any)}
                         className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                          isActive
-                            ? 'bg-indigo-50 text-indigo-700 font-bold border border-indigo-200/80 shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          isSelected
+                            ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                         }`}
                       >
-                        <ItemIcon className={`w-4 h-4 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
-                        <span>{item.label}</span>
+                        <ItemIcon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-400'}`} />
+                        <span className="truncate">{item.label}</span>
                       </button>
                     );
                   })}
@@ -144,14 +140,14 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
         })}
       </div>
 
-      {/* Footer Logout Button */}
-      <div className="p-3 border-t border-slate-200 bg-slate-50/50">
+      {/* Logout Footer */}
+      <div className="p-3 border-t border-slate-200 bg-slate-50">
         <button
           onClick={onLogout}
-          className="w-full flex items-center justify-center space-x-2 bg-white hover:bg-rose-50 hover:border-rose-200 text-rose-600 font-bold text-xs py-2 px-3 rounded-xl border border-slate-200 transition-colors shadow-xs"
+          className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-white hover:bg-rose-50 text-rose-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors shadow-xs"
         >
           <LogOut className="w-4 h-4" />
-          <span>Sign Out Account</span>
+          <span>Sign Out Student Portal</span>
         </button>
       </div>
     </aside>

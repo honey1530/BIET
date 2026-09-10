@@ -82,7 +82,7 @@ export default function ParentStandaloneApp() {
       </nav>
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'parent' && <ParentPortal />}
+        {activeTab === 'parent' && <ParentPortal authSession={authSession} />}
         {activeTab === 'attendance' && <DailyAttendanceTracker />}
         {activeTab === 'interaction' && <FacultyStudentInteraction />}
         {activeTab === 'finance' && <FinanceModule />}

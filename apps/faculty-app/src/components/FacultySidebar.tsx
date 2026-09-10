@@ -77,6 +77,16 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
 
   if (!isOpen) return null;
 
+  const getInitials = (name: string) => {
+    if (!name) return 'FC';
+    const cleanName = name.replace(/^(Dr\.|Prof\.|Mr\.|Mrs\.|Ms\.)\s+/i, '').trim();
+    const parts = cleanName.split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return cleanName.substring(0, 2).toUpperCase();
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-slate-200 text-slate-900 flex flex-col flex-shrink-0 min-h-[calc(100vh-64px)] select-none shadow-xs">
       {/* Current Session Header */}
@@ -89,7 +99,7 @@ export const FacultySidebar: React.FC<FacultySidebarProps> = ({
         </div>
         <div className="flex items-center space-x-2 pt-2">
           <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-            {facultyName.charAt(0)}
+            {getInitials(facultyName)}
           </div>
           <div className="overflow-hidden text-ellipsis">
             <span className="text-xs font-bold text-slate-900 block truncate">{facultyName}</span>

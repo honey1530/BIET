@@ -18,6 +18,16 @@ export const FacultyTopBar: React.FC<FacultyTopBarProps> = ({
   searchQuery,
   onSearchChange
 }) => {
+  const getInitials = (name: string) => {
+    if (!name) return 'FC';
+    const cleanName = name.replace(/^(Dr\.|Prof\.|Mr\.|Mrs\.|Ms\.)\s+/i, '').trim();
+    const parts = cleanName.split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return cleanName.substring(0, 2).toUpperCase();
+  };
+
   return (
     <header className="bg-white border-b border-slate-200 text-slate-900 h-16 px-4 flex items-center justify-between shadow-xs z-20">
       {/* Left Section: Sidebar Toggle & Institutional Title */}
@@ -63,7 +73,7 @@ export const FacultyTopBar: React.FC<FacultyTopBarProps> = ({
       <div className="flex items-center space-x-3">
         <div className="hidden sm:flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
           <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-            {facultyName.charAt(0)}
+            {getInitials(facultyName)}
           </div>
           <div className="text-left">
             <span className="text-xs font-bold text-slate-900 block leading-tight">{facultyName}</span>

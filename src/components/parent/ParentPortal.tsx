@@ -1,8 +1,32 @@
 import React, { useState } from 'react';
-import { ShieldAlert, HeartHandshake, PhoneCall, MessageSquare, AlertTriangle, CheckCircle2, Calendar, FileText, IndianRupee, Clock, ArrowRight, Globe } from 'lucide-react';
+import { 
+  ShieldAlert, HeartHandshake, PhoneCall, MessageSquare, AlertTriangle, 
+  CheckCircle2, Calendar, FileText, IndianRupee, Clock, ArrowRight, Globe 
+} from 'lucide-react';
+import { AuthSession } from '../../types';
 
-export const ParentPortal: React.FC = () => {
+interface ParentPortalProps {
+  authSession?: AuthSession | null;
+}
+
+export const ParentPortal: React.FC<ParentPortalProps> = ({ authSession }) => {
   const [lang, setLang] = useState<'en' | 'te'>('te');
+
+  const studentName = authSession?.name
+    ? authSession.name.replace(/\(Parent of .*\)/i, '').replace(/Parent of /i, '').trim()
+    : 'Kolli Sai Teja (కొల్లి సాయి తేజ)';
+
+  const studentHtno = authSession?.htno || '21B81A0501';
+
+  const initials = studentName
+    .replace(/\([^)]*\)/g, '')
+    .trim()
+    .split(' ')
+    .map(n => n[0])
+    .filter(Boolean)
+    .join('')
+    .substring(0, 2)
+    .toUpperCase() || 'KS';
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -54,12 +78,12 @@ export const ParentPortal: React.FC = () => {
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-slate-900 text-amber-400 font-bold rounded-2xl flex items-center justify-center text-xl shadow-md border border-slate-800">
-            KS
+            {initials}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Kolli Sai Teja (కొల్లి సాయి తేజ)</h3>
+            <h3 className="text-lg font-bold text-slate-900">{studentName}</h3>
             <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-600">
-              <span className="font-semibold text-slate-900">HTNO: 21B81A0501</span>
+              <span className="font-semibold text-slate-900">HTNO: {studentHtno}</span>
               <span>•</span>
               <span>3rd Year B.Tech CSE (Section A)</span>
               <span>•</span>

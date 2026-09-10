@@ -4,7 +4,7 @@ import { DepartmentCode, UserCredential } from '../../types';
 import { getAllCredentials, bulkUploadUsers } from '../../data/db';
 import { 
   Users, GraduationCap, Percent, Briefcase, ShieldCheck, CheckCircle2, Shield, 
-  UserPlus, Upload, FileSpreadsheet, Download, Sparkles 
+  UserPlus, Upload, FileSpreadsheet, Download, Sparkles, BookOpen 
 } from 'lucide-react';
 
 interface ExecutiveDashboardProps {
@@ -251,23 +251,38 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ selected
           </div>
           <div className="mt-3">
             <span className="text-2xl font-bold text-slate-900">84.2%</span>
-            <span className="text-xs text-emerald-600 font-medium ml-2">Above JNTUK 75%</span>
+            <span className="text-xs text-emerald-600 font-medium ml-2">Above BIET 75%</span>
           </div>
           <p className="text-xs text-amber-600 mt-1 font-medium">{atRiskStudents.length} Students At-Risk (&lt;75%)</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Placement Offers</span>
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Briefcase className="w-5 h-5" />
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Faculty Workstation</span>
+            <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
+              <BookOpen className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-2xl font-bold text-slate-900">128</span>
-            <span className="text-xs text-emerald-600 font-medium ml-2">Highest 9.5 LPA</span>
+            <span className="text-2xl font-bold text-slate-900">142</span>
+            <span className="text-xs text-purple-600 font-medium ml-2">Active Educators</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">TCS, Infosys, Virtusa &amp; Accenture</p>
+          <p className="text-xs text-slate-500 mt-1">94.8% Attendance Submission Rate</p>
+        </div>
+      </div>
+
+      {/* Main Grid: Department Matrix & AI Intelligence Hub */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 font-serif">Academic Department Performance Index</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Departmental breakdown across Pennada Bhimavaram campus
+            </p>
+          </div>
+          <span className="text-xs bg-amber-50 text-amber-700 font-semibold px-2.5 py-1 rounded-full border border-amber-200">
+            BIET Regulation BR24 &amp; R23
+          </span>
         </div>
       </div>
 

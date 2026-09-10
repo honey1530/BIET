@@ -45,7 +45,7 @@ export const PortalGateway: React.FC<PortalGatewayProps> = ({ onSelectPortal }) 
       id: 'parent' as UserRole,
       title: 'Parent Web App',
       teluguTitle: 'తల్లిదండ్రుల పోర్టల్ (తెలుగు / English)',
-      subtitle: 'Dedicated portal for Parents & Guardians (Telugu/English JNTUK Attendance Alerts, Mid Exam Marks, JVD Disbursement, HOD WhatsApp Chat)',
+      subtitle: 'Dedicated portal for Parents & Guardians (Telugu/English BIET Attendance Alerts, Mid Exam Marks, JVD Disbursement, HOD WhatsApp Chat)',
       badge: 'Parent & Guardian Persona',
       cardBg: 'bg-white border-slate-200 hover:border-rose-500',
       icon: HeartHandshake,

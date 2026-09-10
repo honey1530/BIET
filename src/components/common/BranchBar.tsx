@@ -75,7 +75,7 @@ export const BranchBar: React.FC<BranchBarProps> = ({ selectedDept, onDeptChange
             <p className="text-xs text-slate-300 flex items-center gap-4">
               <span>HOD: <strong className="text-white font-semibold">{currentDeptInfo.hod}</strong></span>
               <span>•</span>
-              <span>Affiliation: <strong className="text-amber-300">JNTUK Kakinada (R20 &amp; R23)</strong></span>
+              <span>Affiliation: <strong className="text-amber-300">BIET Autonomous (BR24 &amp; R23)</strong></span>
             </p>
           </div>
 

@@ -59,6 +59,7 @@ export default function StudentStandaloneApp() {
                 {activeMenu === 'sgpa_calculator' && 'SGPA, CGPA & Percentage Calculator (Subject-Wise & Cleared Backlogs Tracker)'}
                 {activeMenu === 'fee_status' && 'Personal Fee Ledger & AP JVD Scholarship Status'}
                 {activeMenu === 'attendance_log' && 'Daily 7-Periods Biometric Attendance Log'}
+                {activeMenu === 'attendance_calculator' && 'Daily Attendance Target Calculator & Absence Simulator'}
                 {activeMenu === 'ai_tutor' && 'BIET Cortex Student AI Academic Tutor'}
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -111,6 +112,15 @@ export default function StudentStandaloneApp() {
           {activeMenu === 'attendance_log' && (
             <DailyAttendanceTracker
               initialSubTab="log"
+              studentName={authSession.name}
+              studentHtno={authSession.username}
+              department={authSession.department}
+            />
+          )}
+
+          {activeMenu === 'attendance_calculator' && (
+            <DailyAttendanceTracker
+              initialSubTab="calculator"
               studentName={authSession.name}
               studentHtno={authSession.username}
               department={authSession.department}

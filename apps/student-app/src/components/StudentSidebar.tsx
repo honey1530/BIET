@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   GraduationCap, Clock, Bot, ChevronDown, ChevronRight, User, FileText, 
-  CreditCard, Percent, Sparkles, LogOut, Calculator 
+  CreditCard, Percent, Sparkles, LogOut, Calculator, Target 
 } from 'lucide-react';
 
 export type StudentMenuId =
@@ -10,6 +10,7 @@ export type StudentMenuId =
   | 'sgpa_calculator'
   | 'fee_status'
   | 'attendance_log'
+  | 'attendance_calculator'
   | 'ai_tutor';
 
 interface StudentSidebarProps {
@@ -67,6 +68,7 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
       icon: Clock,
       items: [
         { id: 'attendance_log', label: 'Daily 7-Periods Log', icon: Percent },
+        { id: 'attendance_calculator', label: 'Attendance Target Calculator', icon: Target },
       ]
     },
     {

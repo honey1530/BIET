@@ -402,7 +402,7 @@ export const StudentSelfProfileView: React.FC<StudentSelfProfileViewProps> = ({
                 </h1>
                 <p className="text-sm font-black text-indigo-900 tracking-widest uppercase">AUTONOMOUS</p>
                 <p className="text-[10px] text-slate-700 font-sans font-semibold">
-                  Approved by AICTE, New Delhi &amp; Permanently Affiliated to JNTUK, Kakinada<br />
+                  Approved by AICTE, New Delhi &amp; UGC Autonomous Institution<br />
                   Accredited with "A" Grade by NAAC &amp; ISO 9001:2015 Certified Institution
                 </p>
                 <p className="text-[9px] text-slate-600 font-sans font-medium">

@@ -35,7 +35,7 @@ export const AttendanceModule: React.FC = () => {
 
     const msg = `[BHIMAVARAM INSTITUTE OF ENGINEERING & TECHNOLOGY - BIET]
 Dear Parent,
-Your ward ${st.name} (Hall Ticket: ${st.htno}, Dept: ${st.department}) has a current attendance of ${st.attendancePercentage}%, which is BELOW the mandatory JNTUK 75% threshold.
+Your ward ${st.name} (Hall Ticket: ${st.htno}, Dept: ${st.department}) has a current attendance of ${st.attendancePercentage}%, which is BELOW the mandatory BIET Autonomous 75% threshold.
 
 తెలుగు సందేశం:
 గమనిక: భీమవరం ఇన్సిస్టిట్యూట్ ఆఫ్ ఇంజనీరింగ్ & టెక్నాలజీ (BIET) వారి సమాచారం ప్రకారము, మీ అబ్బాయి/అమ్మాయి ${st.name} గారి హాజరు శాతం ${st.attendancePercentage}% గా ఉన్నది (75% కంటే తక్కువ). క్రమంగా తరగతులకు హాజరు కావాలని కోరుచున్నాము.
@@ -56,7 +56,7 @@ Please contact HOD immediately.
             <span>BIET Biometric Attendance &amp; QR Intelligence</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            TimescaleDB High-Throughput Attendance Stream Syncing with JNTUK 75% Shortage Engine
+            TimescaleDB High-Throughput Attendance Stream Syncing with BIET Autonomous 75% Shortage Engine
           </p>
         </div>
 

@@ -170,7 +170,7 @@ export default function App() {
               Pennada, W.G.Dist., Andhra Pradesh - 534243 • Helpline: +91-630-128-8818
             </p>
             <p className="text-slate-500 text-[11px]">
-              Approved by AICTE New Delhi • Permanently Affiliated to JNTUK Kakinada • Learn and Lead
+              Approved by AICTE New Delhi • UGC Autonomous Institution • Learn and Lead
             </p>
           </div>
 

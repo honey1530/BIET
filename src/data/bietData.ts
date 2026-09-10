@@ -147,7 +147,7 @@ export const SAMPLE_STUDENTS: StudentProfile[] = [
   }
 ];
 
-export const JNTUK_COURSES: Course[] = [
+export const BIET_COURSES: Course[] = [
   {
     code: 'R232101',
     name: 'Discrete Mathematics & Graph Theory',
@@ -166,44 +166,57 @@ export const JNTUK_COURSES: Course[] = [
     credits: 3,
     semester: 5,
     regulation: 'R20',
-    facultyName: 'Dr. G. Srinivas Rao',
-    enrolledStudents: 240,
-    syllabusUnits: ['ER Modeling & Relational Algebra', 'SQL & Complex Queries', 'Normalization (1NF-5NF)', 'Transaction Processing & ACID', 'Indexing & B-Trees']
+    facultyName: 'Prof. K. Satyanarayana',
+    enrolledStudents: 175,
+    syllabusUnits: ['ER Modeling & Relational Schema', 'SQL & Complex Queries', 'Normalization (1NF to BCNF)', 'Transaction Management & ACID Properties', 'Indexing & Query Optimization']
   },
   {
     code: 'R203103',
-    name: 'Artificial Intelligence & Machine Learning',
-    department: 'AIDS',
-    credits: 4,
+    name: 'Operating Systems',
+    department: 'CSE',
+    credits: 3,
     semester: 5,
     regulation: 'R20',
-    facultyName: 'P. Suresh Kumar, M.Tech',
-    enrolledStudents: 120,
-    syllabusUnits: ['Search Algorithms (A*, Heuristics)', 'Supervised Learning & Regression', 'Neural Networks & Deep Learning', 'Clustering & Unsupervised Learning', 'Natural Language Processing']
+    facultyName: 'Dr. M. Sridevi',
+    enrolledStudents: 175,
+    syllabusUnits: ['Process Management & CPU Scheduling', 'Deadlocks & Synchronization (Semaphores)', 'Memory Management & Paging', 'Virtual Memory & Page Replacement', 'File Systems & Storage Disk Scheduling']
   },
   {
     code: 'R203104',
-    name: 'VLSI Design & Embedded Systems',
-    department: 'ECE',
+    name: 'Computer Networks',
+    department: 'CSE',
     credits: 3,
     semester: 5,
     regulation: 'R20',
-    facultyName: 'Dr. K. Srimannarayana',
-    enrolledStudents: 160,
-    syllabusUnits: ['MOS Transistor Principles', 'CMOS Logic Gate Circuits', 'FPGA Architecture & VHDL', 'Embedded Microcontrollers', 'RTOS Concepts']
+    facultyName: 'Dr. P. Venkateswara Rao',
+    enrolledStudents: 175,
+    syllabusUnits: ['OSI & TCP/IP Reference Models', 'Data Link Layer & MAC Protocols', 'Network Layer Routing Algorithms', 'Transport Layer (TCP/UDP Flow Control)', 'Application Layer (DNS, HTTP, SMTP)']
   },
   {
-    code: 'R203105',
-    name: 'Power System Protection & Switchgear',
-    department: 'EEE',
+    code: 'R232105',
+    name: 'Object Oriented Programming via Java',
+    department: 'CSE',
+    credits: 3,
+    semester: 3,
+    regulation: 'R23',
+    facultyName: 'Prof. S. N. Murthy',
+    enrolledStudents: 180,
+    syllabusUnits: ['Java Fundamentals & OOP Principles', 'Inheritance & Interfaces', 'Exception Handling & Multithreading', 'Java I/O & Streams', 'GUI Programming & Swing/JavaFX']
+  },
+  {
+    code: 'R203106',
+    name: 'Formal Languages & Automata Theory',
+    department: 'CSE',
     credits: 3,
     semester: 5,
     regulation: 'R20',
-    facultyName: 'Dr. M. Satyanarayana',
-    enrolledStudents: 90,
-    syllabusUnits: ['Circuit Breakers & Arc Interruption', 'Protective Relays & Digital Relays', 'Transformer & Generator Protection', 'Feeder & Busbar Protection', 'Overvoltage Protection']
+    facultyName: 'Dr. G. Ramesh',
+    enrolledStudents: 175,
+    syllabusUnits: ['Finite Automata (DFA/NFA)', 'Regular Expressions & Pumping Lemma', 'Context-Free Grammars & Pushdown Automata', 'Turing Machines & Decidability', 'Undecidability & NP-Completeness']
   }
 ];
+
+export const JNTUK_COURSES: Course[] = BIET_COURSES;
 
 export const PLACEMENT_DRIVES: PlacementDrive[] = [
   {

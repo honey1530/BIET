@@ -192,7 +192,7 @@ export const StudentDetailsView: React.FC = () => {
               <div>
                 <h3 className="text-xl font-bold text-slate-100 font-serif">{selectedStudent.name}</h3>
                 <p className="text-xs text-amber-400 font-mono font-bold mt-0.5">
-                  JNTUK HTNO: {selectedStudent.htno} • Regulation: {selectedStudent.regulation}
+                  BIET HTNO: {selectedStudent.htno} • Regulation: {selectedStudent.regulation}
                 </p>
                 <p className="text-xs text-slate-400 mt-1">
                   Department: <span className="font-semibold text-slate-200">{selectedStudent.department}</span> • Section: <span className="font-semibold text-slate-200">{selectedStudent.yearSection}</span>
@@ -224,10 +224,10 @@ export const StudentDetailsView: React.FC = () => {
 
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
               <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Biometric Attendance Log</span>
-              <div className="flex items-baseline space-x-2">
-                <span className="text-2xl font-bold text-emerald-400">{selectedStudent.attendancePercentage}%</span>
-                <span className="text-xs text-emerald-500 font-bold">JNTUK Threshold: 75%</span>
-              </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-3xl font-black text-emerald-400">{selectedStudent.attendance}%</span>
+                  <span className="text-xs text-emerald-500 font-bold">BIET Threshold: 75%</span>
+                </div>
               <p className="text-xs text-slate-400">Status: <strong className="text-emerald-400">Exam Hall Ticket Eligible</strong></p>
             </div>
 

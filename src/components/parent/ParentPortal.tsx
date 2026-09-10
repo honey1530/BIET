@@ -24,7 +24,7 @@ export const ParentPortal: React.FC = () => {
             <p className="text-xs text-slate-300 mt-1">
               {lang === 'te'
                 ? 'భీమవరం ఇంజనీరింగ్ కాలేజ్ - విద్యార్థి హాజరు, మార్కులు మరియు ఫీజు తాజా సమాచారం'
-                : 'Real-time JNTUK attendance alerts, mid-exam results, and fee status for your child.'}
+                : 'Real-time BIET Autonomous attendance alerts, mid-exam results, and fee status for your child.'}
             </p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export const ParentPortal: React.FC = () => {
               <span>•</span>
               <span>3rd Year B.Tech CSE (Section A)</span>
               <span>•</span>
-              <span className="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">JNTUK R20</span>
+              <span className="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">BIET R20</span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
               {lang === 'te' ? 'తండ్రి పేరు: కె. సత్యనారాయణ (9848012345)' : 'Guardian: K. Satyanarayana (+91 98480 12345)'}
@@ -88,7 +88,7 @@ export const ParentPortal: React.FC = () => {
         </div>
       </div>
 
-      {/* Critical JNTUK 75% Attendance Warning Alert */}
+      {/* Critical BIET 75% Attendance Warning Alert */}
       <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start justify-between gap-4">
         <div className="flex items-start space-x-3.5">
           <div className="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center font-bold flex-shrink-0 mt-1">
@@ -97,7 +97,7 @@ export const ParentPortal: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <h4 className="text-base font-bold text-amber-900">
-                {lang === 'te' ? 'JNTUK 75% హాజరు హెచ్చరిక (Low Attendance Warning)' : 'JNTUK Attendance Alert (75% Threshold)'}
+                {lang === 'te' ? 'BIET 75% హాజరు హెచ్చరిక (Low Attendance Warning)' : 'BIET Attendance Alert (75% Threshold)'}
               </h4>
               <span className="bg-amber-200 text-amber-900 font-bold text-xs px-2 py-0.5 rounded">
                 71.43% Current
@@ -105,8 +105,8 @@ export const ParentPortal: React.FC = () => {
             </div>
             <p className="text-xs text-amber-950 font-medium leading-relaxed mt-2">
               {lang === 'te'
-                ? 'మీ అబ్బాయి సాయి తేజ ప్రస్తుత హాజరు 71.43% ఉంది. JNTUK నిబంధనల ప్రకారం 75% చేరుకోవడానికి రాబోయే 8 రోజులు వరుసగా తరగతులకు తప్పనిసరిగా హాజరు కావాలి. లేనిచో పరీక్షల రాయడానికి ఫైన్ (Condonation Fee) చెల్లించాల్సి ఉంటుంది.'
-                : 'Sai Teja\'s attendance is currently 71.43% (Below the 75% mandatory JNTUK limit). He must attend the next 8 consecutive classes without absence to avoid exam detention or condonation fees.'}
+                ? 'మీ అబ్బాయి సాయి తేజ ప్రస్తుత హాజరు 71.43% ఉంది. BIET స్వయంప్రతిపత్తి (Autonomous) నిబంధనల ప్రకారం 75% చేరుకోవడానికి రాబోయే 8 రోజులు వరుసగా తరగతులకు తప్పనిసరిగా హాజరు కావాలి. లేనిచో పరీక్షల రాయడానికి ఫైన్ (Condonation Fee) చెల్లించాల్సి ఉంటుంది.'
+                : 'Sai Teja\'s attendance is currently 71.43% (Below the 75% mandatory BIET Autonomous limit). He must attend the next 8 consecutive classes without absence to avoid exam detention or condonation fees.'}
             </p>
           </div>
         </div>
@@ -119,13 +119,13 @@ export const ParentPortal: React.FC = () => {
 
       {/* Grid Layout for Parent Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* JNTUK Mid Exam Marks Summary */}
+        {/* BIET Mid Exam Marks Summary */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center space-x-2">
               <FileText className="w-5 h-5 text-amber-600" />
               <h4 className="text-base font-bold text-slate-900">
-                {lang === 'te' ? 'మిడ్-1 పరీక్షల మార్కులు (Mid-1 Exam Marks)' : 'JNTUK B.Tech III-I Mid-1 Marks'}
+                {lang === 'te' ? 'మిడ్-1 పరీక్షల మార్కులు (Mid-1 Exam Marks)' : 'BIET Autonomous B.Tech III-I Mid-1 Marks'}
               </h4>
             </div>
             <span className="text-xs text-slate-500">Max: 30 Marks</span>

@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium">
-              Affiliated to JNTUK Kakinada • Approved by AICTE New Delhi • Learn and Lead
+              UGC Autonomous Institution • Approved by AICTE New Delhi • Learn and Lead
             </p>
           </div>
         </div>

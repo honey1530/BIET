@@ -17,7 +17,7 @@ export interface StudentProfile {
   name: string;
   department: DepartmentCode;
   yearSection: string; // e.g. "3-CSE-A"
-  regulation: 'R20' | 'R23';
+  regulation: 'R20' | 'R23' | 'BR24';
   cgpa: number;
   attendancePercentage: number;
   jvdEligible: boolean;

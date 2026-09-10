@@ -124,6 +124,26 @@ export const SAMPLE_STUDENTS: StudentProfile[] = [
     parentPhone: '+91 94401 67890',
     backlogs: 0,
     skills: ['Python', 'C Language', 'Web Basics']
+  },
+  {
+    id: 's7',
+    htno: '24AP1A0558',
+    name: 'KOLAGOTLA HARITHA',
+    department: 'CSE',
+    yearSection: '2-CSE-A',
+    regulation: 'BR24',
+    cgpa: 7.69,
+    attendancePercentage: 94.5,
+    jvdEligible: true,
+    jvdStatus: 'Disbursed',
+    totalFee: 70000,
+    dueFee: 0,
+    phone: '+91 99486 39666',
+    email: '24ap1a0558@bietbvrm.ac.in',
+    parentPhone: '+91 99486 39666',
+    fatherName: 'KOLAGOTLA VENKATESWARA REDDY',
+    backlogs: 0,
+    skills: ['Operating Systems', 'Full Stack Development', 'Software Engineering', 'Data Structures & Algorithms']
   }
 ];
 

@@ -31,7 +31,7 @@ export default function ParentStandaloneApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col selection:bg-indigo-600 selection:text-white">
       <Header
         currentRole="parent"
         onRoleChange={() => {}}
@@ -40,24 +40,24 @@ export default function ParentStandaloneApp() {
         onOpenAiHub={() => {}}
       />
 
-      <div className="bg-slate-950 text-white border-b border-slate-800 px-4 py-2 text-xs flex items-center justify-between">
+      <div className="bg-white border-b border-slate-200 px-4 py-2 text-xs flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-          <span>Logged in as: <strong className="text-amber-400 font-bold">{authSession.name}</strong></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-slate-600">Logged in as Parent / Guardian: <strong className="text-slate-900 font-bold">{authSession.name}</strong></span>
         </div>
 
         <button
           onClick={() => setAuthSession(null)}
-          className="bg-rose-600/80 hover:bg-rose-600 text-white font-bold px-3 py-1 rounded-lg transition-colors flex items-center space-x-1"
+          className="bg-slate-100 hover:bg-rose-50 text-rose-700 font-bold px-3 py-1 rounded-xl text-xs transition-colors flex items-center space-x-1 border border-slate-200"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out</span>
         </button>
       </div>
 
-      <nav className="bg-slate-900 border-b border-slate-800 text-slate-300 px-4">
+      <nav className="bg-white border-b border-slate-200 text-slate-700 px-4 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center space-x-2 py-2 overflow-x-auto">
-          <span className="bg-rose-600 text-white font-bold text-xs px-2.5 py-1 rounded mr-2 uppercase tracking-wider flex-shrink-0">
+          <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-xs px-2.5 py-1 rounded-lg mr-2 uppercase tracking-wider flex-shrink-0">
             Parent Web App
           </span>
           {parentTabs.map((t) => {
@@ -67,10 +67,10 @@ export default function ParentStandaloneApp() {
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id as any)}
-                className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   isActive
-                    ? 'bg-amber-500 text-slate-950 shadow-md'
-                    : 'hover:bg-slate-800 text-slate-300'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'hover:bg-slate-100 text-slate-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -88,8 +88,9 @@ export default function ParentStandaloneApp() {
         {activeTab === 'finance' && <FinanceModule />}
       </main>
 
-      <footer className="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800 text-center">
-        <p className="text-amber-400 font-bold">BIET Parent Web App v5.0 • Bhimavaram Institute of Engineering &amp; Technology</p>
+      <footer className="bg-white text-slate-500 text-xs py-6 mt-12 border-t border-slate-200 text-center shadow-xs">
+        <p className="text-slate-900 font-bold">BIET Parent Web App v5.0 • Bhimavaram Institute of Engineering &amp; Technology</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Pennada, W.G.Dist, AP - 534243 • Helpline: +91-630-128-8818</p>
       </footer>
     </div>
   );

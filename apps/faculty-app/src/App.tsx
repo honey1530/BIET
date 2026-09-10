@@ -7,7 +7,7 @@ import { FacultyHub } from '../../../src/components/faculty/FacultyHub';
 import { AttendanceModule } from '../../../src/components/attendance/AttendanceModule';
 import { CortexAIHub } from '../../../src/components/ai/CortexAIHub';
 import { 
-  Users, Fingerprint, LogOut, LayoutDashboard, Sparkles, ChevronRight, CheckCircle2 
+  Users, Fingerprint, LogOut, LayoutDashboard, Sparkles, ChevronRight, CheckCircle2, ShieldCheck 
 } from 'lucide-react';
 
 export default function FacultyStandaloneApp() {
@@ -58,7 +58,7 @@ export default function FacultyStandaloneApp() {
             <div>
               <h2 className="text-base font-bold text-slate-900 font-serif">
                 {activeMenu === 'dashboard' && 'Faculty Dashboard & Workstation Home'}
-                {activeMenu === 'attendance' && 'Classroom Attendance Marking & Sync'}
+                {activeMenu === 'attendance' && 'Classroom Period 1-7 Roll-Call & Parent SMS Alerts'}
                 {activeMenu === 'workstation' && 'Faculty Directory & Student Roster'}
                 {activeMenu === 'ai_tutor' && 'BIET Cortex Faculty AI Workstation'}
               </h2>
@@ -75,33 +75,31 @@ export default function FacultyStandaloneApp() {
           {/* 1. FACULTY DASHBOARD HOME */}
           {activeMenu === 'dashboard' && (
             <div className="space-y-6 animate-fadeIn">
-              {/* Faculty Welcome Hero Box */}
-              <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-purple-950 border border-slate-800/80 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-                
+              {/* Faculty Welcome Hero Box (Clean White Theme) */}
+              <div className="bg-white border border-slate-200 text-slate-900 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="space-y-2 max-w-xl">
-                    <div className="inline-flex items-center space-x-2 bg-purple-500/10 text-purple-300 px-3 py-1 rounded-full border border-purple-500/20 text-xs font-bold">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Academic Year 2026-2027 • UGC Autonomous</span>
+                    <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-200 text-xs font-bold">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Academic Session 2026-2027 • NAAC Grade 'A' • UGC Autonomous</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold font-serif text-amber-300">
+                    <h2 className="text-2xl md:text-3xl font-bold font-serif text-slate-900">
                       Welcome, {authSession.name}!
                     </h2>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Staff &amp; Faculty Portal for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, view department student rosters, and access faculty AI tools.
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Staff &amp; Faculty Workstation for Bhimavaram Institute of Engineering &amp; Technology. Mark period-by-period daily classroom attendance, view department student rosters, and access faculty AI tools.
                     </p>
                   </div>
 
                   {/* Quick Faculty Stat Summary */}
-                  <div className="grid grid-cols-2 gap-4 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-center min-w-[240px]">
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center min-w-[240px] shadow-xs">
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Assigned Branch</span>
-                      <span className="text-lg font-bold text-amber-400">{authSession.department}</span>
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">Assigned Branch</span>
+                      <span className="text-lg font-bold text-indigo-700">{authSession.department}</span>
                     </div>
-                    <div className="border-l border-slate-800 pl-4">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Attendance Status</span>
-                      <span className="text-lg font-bold text-emerald-400">Live Sync</span>
+                    <div className="border-l border-slate-200 pl-4">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">Attendance Status</span>
+                      <span className="text-lg font-bold text-emerald-700">Live Sync</span>
                     </div>
                   </div>
                 </div>
@@ -109,35 +107,35 @@ export default function FacultyStandaloneApp() {
 
               {/* Quick Feature Cards Grid */}
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Faculty Management Portals</span>
+                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-indigo-600" />
+                  <span>Faculty Management Workstations</span>
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Card 1: Attendance Sync */}
                   <div
                     onClick={() => setActiveMenu('attendance')}
-                    className="bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/50 p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group space-y-3"
+                    className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                      <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors border border-indigo-100">
                         <Fingerprint className="w-6 h-6" />
                       </div>
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
-                        Periods 1-7
+                      <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full border border-emerald-200">
+                        Periods 1-7 &amp; SMS
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-100 text-sm group-hover:text-amber-300 transition-colors">
-                        Classroom Attendance Marking &amp; Sync
+                      <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
+                        Period 1-7 Roll-Call &amp; Parent SMS Alerts
                       </h4>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Mark period-by-period daily attendance (Periods 1-7) &amp; sync biometric entry logs.
+                      <p className="text-xs text-slate-600 mt-1">
+                        Mark period-by-period daily student attendance (Periods 1-7) &amp; trigger instant parent SMS alerts.
                       </p>
                     </div>
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-amber-400 font-semibold">
-                      <span>Mark Classroom Attendance</span>
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
+                      <span>Start Classroom Roll-Call</span>
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -145,26 +143,26 @@ export default function FacultyStandaloneApp() {
                   {/* Card 2: Faculty Directory & Roster */}
                   <div
                     onClick={() => setActiveMenu('workstation')}
-                    className="bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/50 p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer group space-y-3"
+                    className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300 p-5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                      <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors border border-purple-100">
                         <Users className="w-6 h-6" />
                       </div>
-                      <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2.5 py-1 rounded-full border border-amber-500/30">
+                      <span className="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-200">
                         {authSession.department} Roster
                       </span>
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-100 text-sm group-hover:text-amber-300 transition-colors">
+                      <h4 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
                         Faculty Directory &amp; Student Roster
                       </h4>
-                      <p className="text-xs text-slate-400 mt-1">
-                        View department faculty profiles, research publications &amp; enrolled student marks.
+                      <p className="text-xs text-slate-600 mt-1">
+                        View department faculty profiles, syllabus progress &amp; enrolled student marks.
                       </p>
                     </div>
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-amber-400 font-semibold">
-                      <span>View Faculty Workstation</span>
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-indigo-700 font-bold">
+                      <span>View Department Roster</span>
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -174,14 +172,15 @@ export default function FacultyStandaloneApp() {
           )}
 
           {/* Dynamic Component Content Rendering */}
-          {activeMenu === 'attendance' && <AttendanceModule />}
+          {activeMenu === 'attendance' && <FacultyHub selectedDept={authSession.department} />}
           {activeMenu === 'workstation' && <FacultyHub selectedDept={authSession.department} />}
           {activeMenu === 'ai_tutor' && <CortexAIHub />}
         </main>
       </div>
 
-      <footer className="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 text-center">
-        <p className="text-amber-400 font-bold">BIET Faculty Web App v5.0 • Bhimavaram Institute of Engineering &amp; Technology (UGC Autonomous)</p>
+      <footer className="bg-white text-slate-600 text-xs py-4 border-t border-slate-200 text-center shadow-xs">
+        <p className="text-slate-900 font-bold">BIET Faculty Web App v5.0 • Bhimavaram Institute of Engineering &amp; Technology (UGC Autonomous)</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Pennada, W.G.Dist, AP - 534243 • Helpline: +91-630-128-8818</p>
       </footer>
     </div>
   );

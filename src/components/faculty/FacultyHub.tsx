@@ -9,7 +9,7 @@ import {
 
 interface FacultyHubProps {
   selectedDept?: DepartmentCode | 'ALL';
-  initialTab?: 'attendance' | 'timetable' | 'paper' | 'roster';
+  initialTab?: 'attendance' | 'timetable';
 }
 
 export const FacultyHub: React.FC<FacultyHubProps> = ({ 
@@ -24,7 +24,7 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     filteredCourses.length > 0 ? filteredCourses[0].code : 'R203102'
   );
   const [selectedPeriod, setSelectedPeriod] = useState<number>(3);
-  const [activeTab, setActiveTab] = useState<'attendance' | 'timetable' | 'paper' | 'roster'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'attendance' | 'timetable'>(initialTab);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -50,10 +50,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
   const [smsAlertsSent, setSmsAlertsSent] = useState<string[]>([]);
   const [biometricVerified, setBiometricVerified] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // AI Exam Paper State
-  const [generatedPaper, setGeneratedPaper] = useState<any | null>(null);
-  const [isGeneratingPaper, setIsGeneratingPaper] = useState(false);
 
   const currentCourse: Course = filteredCourses.find(c => c.code === selectedCourseCode) || filteredCourses[0] || JNTUK_COURSES[0];
 
@@ -99,31 +95,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
     }, 400);
   };
 
-  const handleGenerateExamPaper = async () => {
-    setIsGeneratingPaper(true);
-    setGeneratedPaper(null);
-
-    try {
-      const res = await fetch('/api/ai/exam-paper', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          courseName: currentCourse.name,
-          courseCode: currentCourse.code,
-          regulation: currentCourse.regulation,
-          midType: 'Mid-1',
-          units: currentCourse.syllabusUnits.slice(0, 3)
-        })
-      });
-      const data = await res.json();
-      setGeneratedPaper(data);
-    } catch (err: any) {
-      alert(`Error generating exam paper: ${err.message || String(err)}`);
-    } finally {
-      setIsGeneratingPaper(false);
-    }
-  };
-
   return (
     <div className="space-y-6 animate-fadeIn selection:bg-indigo-600 selection:text-white">
       {/* Top Banner (Executive White Theme) */}
@@ -142,10 +113,7 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
             <label className="text-xs font-bold text-slate-600">Active Course:</label>
             <select
               value={selectedCourseCode}
-              onChange={(e) => {
-                setSelectedCourseCode(e.target.value);
-                setGeneratedPaper(null);
-              }}
+              onChange={(e) => setSelectedCourseCode(e.target.value)}
               className="bg-slate-50 border border-slate-200 font-bold text-indigo-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:bg-white cursor-pointer"
             >
               {filteredCourses.map(c => (
@@ -158,13 +126,11 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
         </div>
       </div>
 
-      {/* Sub-Tab Switcher */}
+      {/* Sub-Tab Switcher: Only Roll-Call and Master Schedule */}
       <div className="bg-white border border-slate-200 rounded-2xl p-1.5 flex items-center space-x-2 overflow-x-auto shadow-xs">
         {[
           { id: 'attendance', label: 'Period 1-7 Roll-Call & SMS Alerts', icon: Fingerprint },
           { id: 'timetable', label: 'Master Class Timetable', icon: Calendar },
-          { id: 'paper', label: 'Bloom\'s Question Paper Studio', icon: FileText },
-          { id: 'roster', label: 'Department Roster', icon: Users },
         ].map(t => {
           const Icon = t.icon;
           const isActive = activeTab === t.id;
@@ -391,126 +357,6 @@ export const FacultyHub: React.FC<FacultyHubProps> = ({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: AI QUESTION PAPER GENERATOR */}
-      {activeTab === 'paper' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Active Course Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-            <div className="flex justify-between items-start">
-              <span className="bg-indigo-600 text-white font-mono font-bold text-xs px-2.5 py-0.5 rounded shadow-xs">
-                {currentCourse.code}
-              </span>
-              <span className="text-xs text-indigo-700 font-bold">{currentCourse.regulation} CBCS</span>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-bold font-serif text-slate-900">{currentCourse.name}</h3>
-              <p className="text-xs text-slate-500 mt-1">Instructor: {currentCourse.facultyName}</p>
-            </div>
-
-            <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Department:</span>
-                <span className="font-bold text-slate-900">{currentCourse.department}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Enrolled Students:</span>
-                <span className="font-bold text-emerald-700">{currentCourse.enrolledStudents} Students</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Credits:</span>
-                <span className="font-bold text-indigo-700">{currentCourse.credits} Credits</span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Unit Syllabus Progress</span>
-              <div className="space-y-1.5 mt-2">
-                {currentCourse.syllabusUnits.map((unit, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded-lg border border-slate-200">
-                    <span className="text-slate-700 font-medium">Unit {idx + 1}: {unit}</span>
-                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded font-bold">COMPLETED</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* AI JNTUK Mid-Paper Generator */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-200">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 font-serif">
-                    JNTUK Bloom's Taxonomy Question Paper Generator
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Generates Mid-1/Mid-2 exam papers matching NBA Course Outcomes (CO1-CO5)
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGenerateExamPaper}
-                disabled={isGeneratingPaper}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-2 transition-all shadow-xs disabled:opacity-50"
-              >
-                <RefreshCw className={`w-4 h-4 ${isGeneratingPaper ? 'animate-spin' : ''}`} />
-                <span>{isGeneratingPaper ? 'Generating Paper...' : 'Generate Mid Paper'}</span>
-              </button>
-            </div>
-
-            {generatedPaper ? (
-              <div className="p-5 bg-slate-50 text-slate-900 rounded-xl space-y-4 font-sans text-xs border border-slate-200 shadow-xs">
-                <div className="text-center border-b border-slate-200 pb-3 space-y-1">
-                  <h4 className="font-serif font-bold text-slate-900 text-sm">
-                    BHIMAVARAM INSTITUTE OF ENGINEERING &amp; TECHNOLOGY (BIET)
-                  </h4>
-                  <p className="text-indigo-700 font-bold">
-                    {generatedPaper.midType} EXAMINATIONS — {generatedPaper.regulation} REGULATION
-                  </p>
-                  <div className="flex justify-between text-[11px] text-slate-600 font-mono pt-1 font-bold">
-                    <span>Subject: {generatedPaper.courseName} ({generatedPaper.courseCode})</span>
-                    <span>Max Marks: {generatedPaper.maxMarks} | Time: {generatedPaper.durationMinutes} Mins</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  {generatedPaper.questions?.map((q: any, idx: number) => (
-                    <div key={idx} className="p-3 bg-white rounded-lg border border-slate-200 space-y-1.5 shadow-xs">
-                      <div className="flex justify-between text-[10px] text-indigo-700 font-bold">
-                        <span>Q{idx + 1}. [Unit {q.unit}] — {q.bloomLevel?.toUpperCase()} LEVEL</span>
-                        <span>{q.marks} Marks • {q.coMapping}</span>
-                      </div>
-                      <p className="text-slate-900 text-xs font-serif leading-relaxed">
-                        {q.questionText}
-                      </p>
-                      {q.orQuestionText && (
-                        <p className="text-slate-600 text-xs font-serif pt-1 border-t border-slate-200">
-                          <strong className="text-indigo-700 font-sans">OR</strong> {q.orQuestionText}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="p-8 border-2 border-dashed border-slate-200 rounded-xl text-center space-y-2">
-                <FileCheck className="w-8 h-8 text-indigo-600 mx-auto" />
-                <h4 className="font-bold text-slate-900 text-sm">No Question Paper Generated Yet</h4>
-                <p className="text-xs text-slate-500 max-w-md mx-auto">
-                  Click "Generate Mid Paper" to invoke BIET Cortex AI engine to craft a balanced JNTUK mid-examination question paper conforming to Bloom's taxonomy.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       )}

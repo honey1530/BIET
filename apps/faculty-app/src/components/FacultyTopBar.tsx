@@ -47,10 +47,10 @@ export const FacultyTopBar: React.FC<FacultyTopBarProps> = ({
             className="w-10 h-10 object-contain drop-shadow-xs" 
           />
           <div>
-            <h1 className="text-sm font-bold font-serif text-slate-900 leading-tight">
+            <h1 className="text-xs sm:text-sm font-bold font-serif text-slate-900 leading-tight truncate max-w-[180px] sm:max-w-none">
               Bhimavaram Institute of Engineering &amp; Technology
             </h1>
-            <p className="text-[10px] text-indigo-700 font-bold">Staff &amp; Faculty Workstation • NAAC Grade 'A' • UGC Autonomous</p>
+            <p className="text-[9px] sm:text-[10px] text-indigo-700 font-bold truncate">Staff Workstation • UGC Autonomous</p>
           </div>
         </div>
       </div>

@@ -86,7 +86,18 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
   if (!isOpen) return null;
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 text-slate-800 flex flex-col flex-shrink-0 min-h-[calc(100vh-64px)] select-none shadow-xs">
+    <>
+      {/* Mobile Dark Backdrop Overlay */}
+      {isOpen && (
+        <div 
+          onClick={onLogout ? undefined : undefined} 
+          className="md:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 transition-opacity"
+        />
+      )}
+
+      <aside className={`fixed md:static top-16 bottom-0 left-0 z-40 w-64 bg-white border-r border-slate-200 text-slate-800 flex flex-col flex-shrink-0 select-none shadow-2xl md:shadow-none transition-transform duration-300 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
       {/* Current Academic Session Info Header Card */}
       <div className="p-4 border-b border-slate-200 bg-slate-50/80 space-y-2">
         <div className="flex items-center justify-between text-[11px]">
@@ -163,5 +174,6 @@ export const StudentSidebar: React.FC<StudentSidebarProps> = ({
         </button>
       </div>
     </aside>
+    </>
   );
 };
